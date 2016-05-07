@@ -4,9 +4,10 @@ author: Vamshi Krishna
 date: 2016-05-05
 template: article.jade
 ---
->[plnkr.co/edit/EGOOTDBUSuPltHDvEEKx](https://plnkr.co/edit/EGOOTDBUSuPltHDvEEKx?p=preview)
+tl;dr : [plnkr.co/edit/EGOOTDBUSuPltHDvEEKx](https://plnkr.co/edit/EGOOTDBUSuPltHDvEEKx?p=preview)
 
-This is a workaround. There is no framework support.
+>This is a workaround. There is no framework support.
+
 
 AngularJS by default is a very test friendly framework. For someone who is eager to try functional programming, these days I am writing a lot of tiny private functions and I want to test them independently. Ofcourse this is not possible with the current Angular framework. To overcome this problem I tried a work around and this blog is about that.
 
