@@ -97,3 +97,5 @@ function tests(){
 ```
 
 Works great !!
+
+The same can be used for private functions in Controllers too.
