@@ -24,6 +24,37 @@
         <article class="article intro">
           <header>
             <p class="date"><span>05. May 2016</span></p>
+            <h2><a href="/angular/articles/services/">Service based architecture</a></h2>
+          </header>
+          <section class="content"><p>AngularJS code resides mostly in the following&nbsp;:</p>
+<ul>
+<li>Controllers</li>
+<li>Services</li>
+<li>Directives</li>
+</ul>
+<p>The weightage depends entirely on the architecture. We can write whole app using only Controller or entirely using directives. This blog is about giving maximum weightage to services and using directives/controllers only for view rendering. How it is advantageous and how to overcome the&nbsp;hurdles.</p>
+<p>For the sake of simplicity lets just compare Controller with Service. Controller vs Directive/Component (ng-1.5) is due for another&nbsp;blog.</p>
+<h3 id="why-no-controller-">Why no Controller&nbsp;?</h3>
+<h4 id="service-is-singleton-controller-is-not">Service is singleton, Controller is&nbsp;not</h4>
+<p>The story goes like this. Whenever we open a page, the controller required to render the view of the page is instantiated. That means the whole code in Controller is run ( this is important). Before doing that , all the services upon which the controller is dependent are instantiated( same, the whole code in each service is executed). But … if the service is already instantiated, the instance is just passed (Singleton !). So if we open the same page in the same app 10 times, Service gets instantiated 1 time and controller code gets run all the 10 times . Imagine doing the same <span class="caps">HTTP</span> call every time you open the same page for some reason . Thats total&nbsp;waste.</p>
+<h4 id="service-can-be-injected">Service can be&nbsp;injected</h4>
+<p>Ok, controller is a loner whom no one cares except for the page its written for. Not fair to expect to be reusable. Still, the more social our code is, the easier it is to maintain and&nbsp;reuse.</p>
+<h4 id="easy-to-test">Easy to&nbsp;test</h4>
+<p>Services are simple Javascript functions, so its straight forward to test them. Unlike in controller, where we can test only those that are tied to <code>scope</code> ( there is a way to overcome this as mentioned <a href="/angular/articles/test-private/">here</a>)</p>
+<h3 id="how-to-use-service-use-cases-">How to use service ( use&nbsp;cases)</h3>
+<h4 id="store-data-cache-if-possible-">Store data (cache if&nbsp;possible)</h4>
+<p>Let the data be stored entirely in service. Before performing <span class="caps">HTTP</span> call check if the data exists in service already and return that. This goes for a full artible on it (coming soon, keep your questions open)&nbsp;.</p>
+<h4 id="util-services">Util&nbsp;services</h4>
+<p>Use services to have util functions as much as possible. If the data object contains 10 fields, all of them might not be needed in controller. Sometimes the data needed is fusion of multiple data sources etc., So the flow would be like&nbsp;:</p>
+<pre><code>Controller --&gt; Util Service --&gt; Data Service
+</code></pre><p>The goal is to make Controller as light as possible. Use it absolutely only for tying view data to model data. Its ideal to have these util services pure functions, which do not store any kind of&nbsp;data.</p>
+<p>This article will be updated with more details. And there are many unanswered questions, need more examples etc., We will be seeing all of them&nbsp;shortly.</p>
+
+          </section>
+        </article>
+        <article class="article intro">
+          <header>
+            <p class="date"><span>05. May 2016</span></p>
             <h2><a href="/angular/articles/test-private/">Testing private functions in Angular</a></h2>
           </header>
           <section class="content"><blockquote>
@@ -107,39 +138,16 @@ describe(<span class="string">'main tests'</span>,tests);
 
           </section>
         </article>
-        <article class="article intro">
-          <header>
-            <p class="date"><span>05. May 2016</span></p>
-            <h2><a href="/angular/articles/services/">Service based architecture</a></h2>
-          </header>
-          <section class="content"><p>AngularJS code resides mostly in the following&nbsp;:</p>
-<ul>
-<li>Controllers</li>
-<li>Services</li>
-<li>Directives</li>
-</ul>
-<p>The weightage depends entirely on the architecture. We can write whole app using only Controller or entirely using directives. This blog is about giving maximum weightage to services and using directives/controllers only for view rendering. How it is advantageous and how to overcome the&nbsp;hurdles.</p>
-<p>For the sake of simplicity lets just compare Controller with Service. Controller vs Directive/Component (ng-1.5) is due for another&nbsp;blog.</p>
-<h3 id="why-no-controller-">Why no Controller&nbsp;?</h3>
-<h4 id="service-is-singleton-controller-is-not">Service is singleton, Controller is&nbsp;not</h4>
-<p>The story goes like this. Whenever we open a page, the controller required to render the view of the page is instantiated. That means the whole code in Controller is run ( this is important). Before doing that , all the services upon which the controller is dependent are instantiated( same, the whole code in each service is executed). But … if the service is already instantiated, the instance is just passed (Singleton !). So if we open the same page in the same app 10 times, Service gets instantiated 1 time and controller code gets run all the 10 times . Imagine doing the same <span class="caps">HTTP</span> call every time you open the same page for some reason . Thats total&nbsp;waste.</p>
-<h4 id="service-can-be-injected">Service can be&nbsp;injected</h4>
-<p>Ok, controller is a loner whom no one cares except for the page its written for. Not fair to expect to be reusable. Still, the more social our code is, the easier it is to maintain and&nbsp;reuse.</p>
-<h4 id="easy-to-test">Easy to&nbsp;test</h4>
-<p>Services are simple Javascript functions, so its straight forward to test them. Unlike in controller, where we can test only those that are tied to <code>scope</code> ( there is a way to overcome this as mentioned <a href="/angular/articles/test-private/">here</a>)</p>
-<h3 id="how-to-use-service-use-cases-">How to use service ( use&nbsp;cases)</h3>
-<h4 id="store-data-cache-if-possible-">Store data (cache if&nbsp;possible)</h4>
-<p>Let the data be stored entirely in service. Before performing <span class="caps">HTTP</span> call check if the data exists in service already and return that. This goes for a full artible on it (coming soon, keep your questions open)&nbsp;.</p>
-<h4 id="util-services">Util&nbsp;services</h4>
-<p>Use services to have util functions as much as possible. If the data object contains 10 fields, all of them might not be needed in controller. Sometimes the data needed is fusion of multiple data sources etc., So the flow would be like&nbsp;:</p>
-<pre><code>Controller --&gt; Util Service --&gt; Data Service
-</code></pre><p>The goal is to make Controller as light as possible. Use it absolutely only for tying view data to model data. Its ideal to have these util services pure functions, which do not store any kind of&nbsp;data.</p>
-<p>This article will be updated with more details. And there are many unanswered questions, need more examples etc., We will be seeing all of them&nbsp;shortly.</p>
-
-          </section>
-        </article>
       </div>
     </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-77433719-1', 'auto');
+      ga('send', 'pageview');
+    </script>
     <footer>
       <div class="content-wrap">
         <div class="nav"><a href="/archive.html">&laquo; Archives</a>
