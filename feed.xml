@@ -14,10 +14,10 @@
       <pubDate>Wed, 04 May 2016 17:00:00 -0700</pubDate>
       <guid isPermaLink="true">http://vamshi-krishna.com/angular/angular/articles/test-private/</guid>
       <author></author>
-      <description>&lt;p&gt;tl;dr : &lt;a href=&quot;https://plnkr.co/edit/EGOOTDBUSuPltHDvEEKx?p=preview&quot;&gt;plnkr.co/edit/EGOOTDBUSuPltHDvEEKx&lt;/a&gt;&lt;/p&gt;
-&lt;blockquote&gt;
+      <description>&lt;blockquote&gt;
 &lt;p&gt;This is a workaround. There is no framework support.&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;p&gt;tl;dr : &lt;a href=&quot;https://plnkr.co/edit/EGOOTDBUSuPltHDvEEKx?p=preview&quot;&gt;plnkr.co/edit/EGOOTDBUSuPltHDvEEKx&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;AngularJS by default is a very test friendly framework. For someone who is eager to try functional programming, these days I am writing a lot of tiny private functions and I want to test them independently. Ofcourse this is not possible with the current Angular framework. To overcome this problem I tried a work around and this blog is about that.&lt;/p&gt;
 &lt;p&gt;Lets start with a simple example:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;angular.module(&lt;span class=&quot;string&quot;&gt;'app'&lt;/span&gt;,[])
@@ -42,12 +42,12 @@
   }));
 
   it(&lt;span class=&quot;string&quot;&gt;&quot;should return the sum&quot;&lt;/span&gt;,&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
-    &lt;span class=&quot;comment&quot;&gt;//expect(service.sum(4,5)).toBe(9);&lt;/span&gt;
+    expect(service.sum(&lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;,&lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)).toBe(&lt;span class=&quot;number&quot;&gt;9&lt;/span&gt;);
   });
 }
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;I want to get this working. As this gives the error, I commented out the main line.&lt;/p&gt;
-&lt;p&gt;To get this working, I have added another service which always gives &lt;code&gt;false&lt;/code&gt; unless explicitly force it to give &lt;code&gt;true&lt;/code&gt;. In general case, we never touch it, but we will set it to true during testing. This way we can convert private functions to publice during test and leave them private in general cases.&lt;/p&gt;
+&lt;p&gt;I want to get this working. But it gives error.&lt;/p&gt;
+&lt;p&gt;To get this working, I added another service which always gives &lt;code&gt;false&lt;/code&gt; for &lt;code&gt;testEnabled&lt;/code&gt; value. In general case, we never touch it, but we will set it to &lt;code&gt;true&lt;/code&gt; during testing. This way we can convert private functions to public during test and leave them private in general cases.&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;angular.module(&lt;span class=&quot;string&quot;&gt;'app'&lt;/span&gt;,[])
   .service(&lt;span class=&quot;string&quot;&gt;'Service1'&lt;/span&gt;,Service1)
   .service(&lt;span class=&quot;string&quot;&gt;'Service2'&lt;/span&gt;,Service2);

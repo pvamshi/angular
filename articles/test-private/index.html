@@ -21,10 +21,10 @@
     <div id="content">
       <div class="content-wrap">
         <article class="article">
-          <section class="content"><p>tl;dr : <a href="https://plnkr.co/edit/EGOOTDBUSuPltHDvEEKx?p=preview">plnkr.co/edit/EGOOTDBUSuPltHDvEEKx</a></p>
-<blockquote>
+          <section class="content"><blockquote>
 <p>This is a workaround. There is no framework&nbsp;support.</p>
 </blockquote>
+<p>tl;dr : <a href="https://plnkr.co/edit/EGOOTDBUSuPltHDvEEKx?p=preview">plnkr.co/edit/EGOOTDBUSuPltHDvEEKx</a></p>
 <p>AngularJS by default is a very test friendly framework. For someone who is eager to try functional programming, these days I am writing a lot of tiny private functions and I want to test them independently. Ofcourse this is not possible with the current Angular framework. To overcome this problem I tried a work around and this blog is about&nbsp;that.</p>
 <p>Lets start with a simple&nbsp;example:</p>
 <pre><code class="lang-js">angular.module(<span class="string">'app'</span>,[])
@@ -49,12 +49,12 @@
   }));
 
   it(<span class="string">"should return the sum"</span>,<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
-    <span class="comment">//expect(service.sum(4,5)).toBe(9);</span>
+    expect(service.sum(<span class="number">4</span>,<span class="number">5</span>)).toBe(<span class="number">9</span>);
   });
 }
 </code></pre>
-<p>I want to get this working. As this gives the error, I commented out the main&nbsp;line.</p>
-<p>To get this working, I have added another service which always gives <code>false</code> unless explicitly force it to give <code>true</code>. In general case, we never touch it, but we will set it to true during testing. This way we can convert private functions to publice during test and leave them private in general&nbsp;cases.</p>
+<p>I want to get this working. But it gives&nbsp;error.</p>
+<p>To get this working, I added another service which always gives <code>false</code> for <code>testEnabled</code> value. In general case, we never touch it, but we will set it to <code>true</code> during testing. This way we can convert private functions to public during test and leave them private in general&nbsp;cases.</p>
 <pre><code class="lang-js">angular.module(<span class="string">'app'</span>,[])
   .service(<span class="string">'Service1'</span>,Service1)
   .service(<span class="string">'Service2'</span>,Service2);
