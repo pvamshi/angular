@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Testing private functions in Angular - Development using Angular
+    </title>
+    <link rel="alternate" href="http://vamshi-krishna.com/angular/feed.xml" type="application/rss+xml" title="Blogs on web development using AngularJS">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="/angular/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Testing private functions in Angular</h1>
+        <p class="author">Written by <span class="author">Vamshi Krishna</span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><blockquote>
+<p><a href="https://plnkr.co/edit/EGOOTDBUSuPltHDvEEKx?p=preview">plnkr.co/edit/EGOOTDBUSuPltHDvEEKx</a></p>
+</blockquote>
+<p>This is a workaround. There is no framework&nbsp;support.</p>
+<p>AngularJS by default is a very test friendly framework. For someone who is eager to try functional programming, these days I am writing a lot of tiny private functions and I want to test them independently. Ofcourse this is not possible with the current Angular framework. To overcome this problem I tried a work around and this blog is about&nbsp;that.</p>
+<p>Lets start with a simple&nbsp;example:</p>
+<pre><code class="lang-js">angular.module(<span class="string">'app'</span>,[])
+  .service(<span class="string">'Service1'</span>,Service1);
+
+<span class="function"><span class="keyword">function</span> <span class="title">Service1</span>(<span class="params"></span>)</span>{
+  <span class="keyword">this</span>.getMessage = <span class="function"><span class="keyword">function</span>(<span class="params">num1,num2</span>)</span>{
+    <span class="keyword">return</span> <span class="string">'The sum of the numbers is '</span>+sum(num1,num2);
+  };
+  <span class="function"><span class="keyword">function</span> <span class="title">sum</span>(<span class="params">num1, num2</span>)</span>{
+    <span class="keyword">return</span> num1+num2;
+  }
+}
+</code></pre>
+<p>I am not interested to test <code>getMessage</code> . I only want to test <code>sum</code> as that is where all the logic happening. My unit test file looks like&nbsp;this:</p>
+<pre><code class="lang-js">describe(<span class="string">'main tests'</span>,tests);
+<span class="function"><span class="keyword">function</span> <span class="title">tests</span>(<span class="params"></span>)</span>{
+  <span class="keyword">var</span> service;
+  beforeEach(<span class="built_in">module</span>(<span class="string">'app'</span>));
+  beforeEach(inject(<span class="function"><span class="keyword">function</span>(<span class="params">Service1</span>)</span>{
+    service = Service1;
+  }));
+
+  it(<span class="string">"should return the sum"</span>,<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
+    <span class="comment">//expect(service.sum(4,5)).toBe(9);</span>
+  });
+}
+</code></pre>
+<p>I want to get this working. As this gives the error, I commented out the main&nbsp;line.</p>
+<p>To get this working, I have added another service which always gives <code>false</code> unless explicitly force it to give <code>true</code>. In general case, we never touch it, but we will set it to true during testing. This way we can convert private functions to publice during test and leave them private in general&nbsp;cases.</p>
+<pre><code class="lang-js">angular.module(<span class="string">'app'</span>,[])
+  .service(<span class="string">'Service1'</span>,Service1)
+  .service(<span class="string">'Service2'</span>,Service2);
+
+<span class="comment">//Service2 code</span>
+
+<span class="function"><span class="keyword">function</span> <span class="title">Service1</span>(<span class="params"></span>)</span>{
+  <span class="keyword">this</span>.getMessage = <span class="function"><span class="keyword">function</span>(<span class="params">num1,num2</span>)</span>{
+    <span class="keyword">return</span> <span class="string">'The sum of the numbers is '</span>+sum(num1,num2);
+  };
+  <span class="function"><span class="keyword">function</span> <span class="title">sum</span>(<span class="params">num1, num2</span>)</span>{
+    <span class="keyword">return</span> num1+num2;
+  }
+
+  <span class="keyword">if</span>(Service2.testEnabled){
+    <span class="keyword">this</span>.sum = sum;
+  }
+}
+</code></pre>
+<p>Now we can continue with unit&nbsp;tests.</p>
+<pre><code class="lang-js">angular.module(<span class="string">'app'</span>,[])
+  .service(<span class="string">'Service1'</span>,Service1)
+  .service(<span class="string">'Service2'</span>,Service2);
+
+
+describe(<span class="string">'main tests'</span>,tests);
+<span class="function"><span class="keyword">function</span> <span class="title">tests</span>(<span class="params"></span>)</span>{
+  <span class="keyword">var</span> service, service2;
+  beforeEach(<span class="built_in">module</span>(<span class="string">'app'</span>));
+  beforeEach(inject(<span class="function"><span class="keyword">function</span>(<span class="params">Service2</span>)</span>{
+    service2 = Service2;
+    service2.enableTest();
+  }));
+  beforeEach(inject(<span class="function"><span class="keyword">function</span>(<span class="params">Service1</span>)</span>{
+    service = Service1;
+  }));
+
+  it(<span class="string">"should return the name"</span>,<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
+    expect(service.sum(<span class="number">4</span>,<span class="number">5</span>)).toBe(<span class="number">9</span>);
+  });
+}
+</code></pre>
+<p>Works great&nbsp;!!</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/angular/">&laquo; Full blog</a></div>
+        <section class="about"><p>I am a full stack developer working for <a href="http://www.imaginea.com/">Imaginea Technologies Pvt. Ltd.</a>
+located at Hydearbad. These are few angular related musings which can be used in web
+application development. You can do me a favor by commenting out improvements
+or pointing out my mistakes.</p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2016 Vamshi Krishna &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer>
+  </body>
+</html>

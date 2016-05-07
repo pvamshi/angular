@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Development using Angular</title>
+    <atom:link href="http://vamshi-krishna.com/angular/feed.xml" rel="self" type="application/rss+xml"></atom:link>
+    <link>http://vamshi-krishna.com/angular</link>
+    <description>Blogs on web development using AngularJS</description>
+    <pubDate>Wed, 04 May 2016 17:00:00 -0700</pubDate>
+    <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
+    <language>en</language>
+    <item>
+      <title>Testing private functions in Angular</title>
+      <link>http://vamshi-krishna.com/angular/angular/articles/test-private/</link>
+      <pubDate>Wed, 04 May 2016 17:00:00 -0700</pubDate>
+      <guid isPermaLink="true">http://vamshi-krishna.com/angular/angular/articles/test-private/</guid>
+      <author></author>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&quot;https://plnkr.co/edit/EGOOTDBUSuPltHDvEEKx?p=preview&quot;&gt;plnkr.co/edit/EGOOTDBUSuPltHDvEEKx&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;This is a workaround. There is no framework support.&lt;/p&gt;
+&lt;p&gt;AngularJS by default is a very test friendly framework. For someone who is eager to try functional programming, these days I am writing a lot of tiny private functions and I want to test them independently. Ofcourse this is not possible with the current Angular framework. To overcome this problem I tried a work around and this blog is about that.&lt;/p&gt;
+&lt;p&gt;Lets start with a simple example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;angular.module(&lt;span class=&quot;string&quot;&gt;'app'&lt;/span&gt;,[])
+  .service(&lt;span class=&quot;string&quot;&gt;'Service1'&lt;/span&gt;,Service1);
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Service1&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getMessage = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;num1,num2&lt;/span&gt;)&lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'The sum of the numbers is '&lt;/span&gt;+sum(num1,num2);
+  };
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;sum&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;num1, num2&lt;/span&gt;)&lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; num1+num2;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I am not interested to test &lt;code&gt;getMessage&lt;/code&gt; . I only want to test &lt;code&gt;sum&lt;/code&gt; as that is where all the logic happening. My unit test file looks like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;describe(&lt;span class=&quot;string&quot;&gt;'main tests'&lt;/span&gt;,tests);
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;tests&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; service;
+  beforeEach(&lt;span class=&quot;built_in&quot;&gt;module&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'app'&lt;/span&gt;));
+  beforeEach(inject(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;Service1&lt;/span&gt;)&lt;/span&gt;{
+    service = Service1;
+  }));
+
+  it(&lt;span class=&quot;string&quot;&gt;&quot;should return the sum&quot;&lt;/span&gt;,&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+    &lt;span class=&quot;comment&quot;&gt;//expect(service.sum(4,5)).toBe(9);&lt;/span&gt;
+  });
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I want to get this working. As this gives the error, I commented out the main line.&lt;/p&gt;
+&lt;p&gt;To get this working, I have added another service which always gives &lt;code&gt;false&lt;/code&gt; unless explicitly force it to give &lt;code&gt;true&lt;/code&gt;. In general case, we never touch it, but we will set it to true during testing. This way we can convert private functions to publice during test and leave them private in general cases.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;angular.module(&lt;span class=&quot;string&quot;&gt;'app'&lt;/span&gt;,[])
+  .service(&lt;span class=&quot;string&quot;&gt;'Service1'&lt;/span&gt;,Service1)
+  .service(&lt;span class=&quot;string&quot;&gt;'Service2'&lt;/span&gt;,Service2);
+
+&lt;span class=&quot;comment&quot;&gt;//Service2 code&lt;/span&gt;
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Service1&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getMessage = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;num1,num2&lt;/span&gt;)&lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'The sum of the numbers is '&lt;/span&gt;+sum(num1,num2);
+  };
+  &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;sum&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;num1, num2&lt;/span&gt;)&lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; num1+num2;
+  }
+
+  &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(Service2.testEnabled){
+    &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.sum = sum;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now we can continue with unit tests.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;angular.module(&lt;span class=&quot;string&quot;&gt;'app'&lt;/span&gt;,[])
+  .service(&lt;span class=&quot;string&quot;&gt;'Service1'&lt;/span&gt;,Service1)
+  .service(&lt;span class=&quot;string&quot;&gt;'Service2'&lt;/span&gt;,Service2);
+
+
+describe(&lt;span class=&quot;string&quot;&gt;'main tests'&lt;/span&gt;,tests);
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;tests&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; service, service2;
+  beforeEach(&lt;span class=&quot;built_in&quot;&gt;module&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'app'&lt;/span&gt;));
+  beforeEach(inject(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;Service2&lt;/span&gt;)&lt;/span&gt;{
+    service2 = Service2;
+    service2.enableTest();
+  }));
+  beforeEach(inject(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;Service1&lt;/span&gt;)&lt;/span&gt;{
+    service = Service1;
+  }));
+
+  it(&lt;span class=&quot;string&quot;&gt;&quot;should return the name&quot;&lt;/span&gt;,&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+    expect(service.sum(&lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;,&lt;span class=&quot;number&quot;&gt;5&lt;/span&gt;)).toBe(&lt;span class=&quot;number&quot;&gt;9&lt;/span&gt;);
+  });
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Works great !!&lt;/p&gt;
+</description>
+    </item>
+  </channel>
+</rss>

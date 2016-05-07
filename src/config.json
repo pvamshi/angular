@@ -1,0 +1,28 @@
+{
+  "locals": {
+    "url": "http://vamshi-krishna.com/angular",
+    "name": "Development using Angular",
+    "owner": "Vamshi Krishna",
+    "description": "Blogs on web development using AngularJS"
+  },
+  "plugins": [
+    "./plugins/paginator.coffee"
+  ],
+  "require": {
+    "moment": "moment",
+    "_": "underscore",
+    "typogr": "typogr"
+  },
+  "jade": {
+    "pretty": true
+  },
+  "output":"..",
+  "baseUrl":"/angular",
+  "markdown": {
+    "smartLists": true,
+    "smartypants": true
+  },
+  "paginator": {
+    "perPage": 5
+  }
+}
