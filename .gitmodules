@@ -1,0 +1,3 @@
+[submodule "src/templates/wintersmith-static-comments"]
+	path = src/templates/wintersmith-static-comments
+	url = https://github.com/tlvince/wintersmith-static-comments.git

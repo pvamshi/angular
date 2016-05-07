@@ -3,6 +3,7 @@ title: Service based architecture
 author: Vamshi Krishna
 date: 2016-05-05
 template: article.jade
+comments: true
 ---
 
 AngularJS code resides mostly in the following :

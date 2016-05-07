@@ -3,7 +3,8 @@
     "url": "http://vamshi-krishna.com/angular",
     "name": "Development using Angular",
     "owner": "Vamshi Krishna",
-    "description": "Blogs on web development using AngularJS"
+    "description": "Blogs on web development using AngularJS",
+    "comment_email": "pvamshi@gmail.com"
   },
   "plugins": [
     "./plugins/paginator.coffee"
