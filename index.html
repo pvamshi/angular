@@ -26,117 +26,12 @@
             <p class="date"><span>05. May 2016</span></p>
             <h2><a href="/angular/articles/services/">Service based architecture</a></h2>
           </header>
-          <section class="content"><p>AngularJS code resides mostly in the following&nbsp;:</p>
-<ul>
-<li>Controllers</li>
-<li>Services</li>
-<li>Directives</li>
-</ul>
-<p>The weightage depends entirely on the architecture. We can write whole app using only Controller or entirely using directives. This blog is about giving maximum weightage to services and using directives/controllers only for view rendering. How it is advantageous and how to overcome the&nbsp;hurdles.</p>
-<p>For the sake of simplicity lets just compare Controller with Service. Controller vs Directive/Component (ng-1.5) is due for another&nbsp;blog.</p>
-<h3 id="why-no-controller-">Why no Controller&nbsp;?</h3>
-<h4 id="service-is-singleton-controller-is-not">Service is singleton, Controller is&nbsp;not</h4>
-<p>The story goes like this. Whenever we open a page, the controller required to render the view of the page is instantiated. That means the whole code in Controller is run ( this is important). Before doing that , all the services upon which the controller is dependent are instantiated( same, the whole code in each service is executed). But … if the service is already instantiated, the instance is just passed (Singleton !). So if we open the same page in the same app 10 times, Service gets instantiated 1 time and controller code gets run all the 10 times . Imagine doing the same <span class="caps">HTTP</span> call every time you open the same page for some reason . Thats total&nbsp;waste.</p>
-<h4 id="service-can-be-injected">Service can be&nbsp;injected</h4>
-<p>Ok, controller is a loner whom no one cares except for the page its written for. Not fair to expect to be reusable. Still, the more social our code is, the easier it is to maintain and&nbsp;reuse.</p>
-<h4 id="easy-to-test">Easy to&nbsp;test</h4>
-<p>Services are simple Javascript functions, so its straight forward to test them. Unlike in controller, where we can test only those that are tied to <code>scope</code> ( there is a way to overcome this as mentioned <a href="/angular/articles/test-private/">here</a>)</p>
-<h3 id="how-to-use-service-use-cases-">How to use service ( use&nbsp;cases)</h3>
-<h4 id="store-data-cache-if-possible-">Store data (cache if&nbsp;possible)</h4>
-<p>Let the data be stored entirely in service. Before performing <span class="caps">HTTP</span> call check if the data exists in service already and return that. This goes for a full artible on it (coming soon, keep your questions open)&nbsp;.</p>
-<h4 id="util-services">Util&nbsp;services</h4>
-<p>Use services to have util functions as much as possible. If the data object contains 10 fields, all of them might not be needed in controller. Sometimes the data needed is fusion of multiple data sources etc., So the flow would be like&nbsp;:</p>
-<pre><code>Controller --&gt; Util Service --&gt; Data Service
-</code></pre><p>The goal is to make Controller as light as possible. Use it absolutely only for tying view data to model data. Its ideal to have these util services pure functions, which do not store any kind of&nbsp;data.</p>
-<p>This article will be updated with more details. And there are many unanswered questions, need more examples etc., We will be seeing all of them&nbsp;shortly.</p>
-
-          </section>
         </article>
         <article class="article intro">
           <header>
             <p class="date"><span>05. May 2016</span></p>
             <h2><a href="/angular/articles/test-private/">Testing private functions in Angular</a></h2>
           </header>
-          <section class="content"><blockquote>
-<p>This is a workaround. There is no framework&nbsp;support.</p>
-</blockquote>
-<p>tl;dr : <a href="https://plnkr.co/edit/EGOOTDBUSuPltHDvEEKx?p=preview">plnkr.co/edit/EGOOTDBUSuPltHDvEEKx</a></p>
-<p>AngularJS by default is a very test friendly framework. For someone who is eager to try functional programming, these days I am writing a lot of tiny private functions and I want to test them independently. Ofcourse this is not possible with the current Angular framework. To overcome this problem I tried a work around and this blog is about&nbsp;that.</p>
-<p>Lets start with a simple&nbsp;example:</p>
-<pre><code class="lang-js">angular.module(<span class="string">'app'</span>,[])
-  .service(<span class="string">'Service1'</span>,Service1);
-
-<span class="function"><span class="keyword">function</span> <span class="title">Service1</span>(<span class="params"></span>)</span>{
-  <span class="keyword">this</span>.getMessage = <span class="function"><span class="keyword">function</span>(<span class="params">num1,num2</span>)</span>{
-    <span class="keyword">return</span> <span class="string">'The sum of the numbers is '</span>+sum(num1,num2);
-  };
-  <span class="function"><span class="keyword">function</span> <span class="title">sum</span>(<span class="params">num1, num2</span>)</span>{
-    <span class="keyword">return</span> num1+num2;
-  }
-}
-</code></pre>
-<p>I am not interested to test <code>getMessage</code> . I only want to test <code>sum</code> as that is where all the logic happening. My unit test file looks like&nbsp;this:</p>
-<pre><code class="lang-js">describe(<span class="string">'main tests'</span>,tests);
-<span class="function"><span class="keyword">function</span> <span class="title">tests</span>(<span class="params"></span>)</span>{
-  <span class="keyword">var</span> service;
-  beforeEach(<span class="built_in">module</span>(<span class="string">'app'</span>));
-  beforeEach(inject(<span class="function"><span class="keyword">function</span>(<span class="params">Service1</span>)</span>{
-    service = Service1;
-  }));
-
-  it(<span class="string">"should return the sum"</span>,<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
-    expect(service.sum(<span class="number">4</span>,<span class="number">5</span>)).toBe(<span class="number">9</span>);
-  });
-}
-</code></pre>
-<p>I want to get this working. But it gives&nbsp;error.</p>
-<p>To get this working, I added another service which always gives <code>false</code> for <code>testEnabled</code> value. In general case, we never touch it, but we will set it to <code>true</code> during testing. This way we can convert private functions to public during test and leave them private in general&nbsp;cases.</p>
-<pre><code class="lang-js">angular.module(<span class="string">'app'</span>,[])
-  .service(<span class="string">'Service1'</span>,Service1)
-  .service(<span class="string">'Service2'</span>,Service2);
-
-<span class="comment">//Service2 code</span>
-
-<span class="function"><span class="keyword">function</span> <span class="title">Service1</span>(<span class="params"></span>)</span>{
-  <span class="keyword">this</span>.getMessage = <span class="function"><span class="keyword">function</span>(<span class="params">num1,num2</span>)</span>{
-    <span class="keyword">return</span> <span class="string">'The sum of the numbers is '</span>+sum(num1,num2);
-  };
-  <span class="function"><span class="keyword">function</span> <span class="title">sum</span>(<span class="params">num1, num2</span>)</span>{
-    <span class="keyword">return</span> num1+num2;
-  }
-
-  <span class="keyword">if</span>(Service2.testEnabled){
-    <span class="keyword">this</span>.sum = sum;
-  }
-}
-</code></pre>
-<p>Now we can continue with unit&nbsp;tests.</p>
-<pre><code class="lang-js">angular.module(<span class="string">'app'</span>,[])
-  .service(<span class="string">'Service1'</span>,Service1)
-  .service(<span class="string">'Service2'</span>,Service2);
-
-
-describe(<span class="string">'main tests'</span>,tests);
-<span class="function"><span class="keyword">function</span> <span class="title">tests</span>(<span class="params"></span>)</span>{
-  <span class="keyword">var</span> service, service2;
-  beforeEach(<span class="built_in">module</span>(<span class="string">'app'</span>));
-  beforeEach(inject(<span class="function"><span class="keyword">function</span>(<span class="params">Service2</span>)</span>{
-    service2 = Service2;
-    service2.enableTest();
-  }));
-  beforeEach(inject(<span class="function"><span class="keyword">function</span>(<span class="params">Service1</span>)</span>{
-    service = Service1;
-  }));
-
-  it(<span class="string">"should return the name"</span>,<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{
-    expect(service.sum(<span class="number">4</span>,<span class="number">5</span>)).toBe(<span class="number">9</span>);
-  });
-}
-</code></pre>
-<p>Works great&nbsp;!!</p>
-<p>The same can be used for private functions in Controllers&nbsp;too.</p>
-
-          </section>
         </article>
       </div>
     </div>
