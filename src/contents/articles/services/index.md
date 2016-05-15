@@ -1,19 +1,63 @@
 ---
-title: Service based architecture
+title: Service centric architecture in AngularJS
 author: Vamshi Krishna
-date: 2016-05-05
+date: 2016-05-15 10:02:00 +05:30
 template: article.jade
 comments: true
 ---
 
-AngularJS code resides mostly in the following :
-* Controllers
-* Services
-* Directives
+* [Summary](#summary)
+* [Introduction](#introduction)
+  * [Scope](#scope)
+* [General Idea](#general-idea)
+  * [Service as Data containers](#service-as-data-containers)
+  * [Immutable Data](#immutable-data)
+  * [Solutions](#solutions)
 
-The weightage depends entirely on the architecture. We can write whole app using only Controller or entirely using directives. This blog is about giving maximum weightage to services and using directives/controllers only for view rendering. How it is advantageous and how to overcome the hurdles.
+* * *
 
-For the sake of simplicity lets just compare Controller with Service. Controller vs Directive/Component (ng-1.5) is due for another blog.
+### Summary
+This article tries to decrease the amount of code written in Controllers and shift that to Services. Services are being used to store data. We do it in two ways :
+1. Store data in service, copy required data to controller. Add watcher/observer in controller to update data.
+2. Store data in service and directly use service methods to access data in views
+
+We discuss the problems faced and try to fix them.
+
+* * *
+
+### Introduction
+In all practical cases AngularJS code mostly resides in controllers. Controllers are heavily monitored and pampered by the framework, which makes it heavy and bloated. By literally living in controller all the time we are multiplying the problems. This article is an attempt to shift the weight to services from controllers and gauge the advantages and disadvantages.
+#### Scope
+The scope of this article is entirely to AngularJS 1.5+. Most of the concepts can be used in Angular 2. With Angular 2, few problems get solved and its more easier to use it there. So, we discuss it for 1 and try to fix the problems.
+
+### General Idea
+#### Service as Data containers
+The data flow in AngularJS is as follows :
+* Controller asks service to give data
+* Service does a HTTP call and return the promise to Controller
+* Controller waits till promise is resolved and adds returned data to scope
+
+Essentially the data is transfered from backend to scope, service just acts as a medium of transfer.
+
+![Data transfer in AngularJS](//i.imgur.com/8soKsIO.png)
+
+We are trying to stop the data in the service itself and make controller access the data from the service whenever it needs.
+
+![Data transfer in AngularJS](//i.imgur.com/0fArCPA.png)
+
+#### Immutable data
+The data stored in service is Immutable by the controllers. In other words controllers have read-only access. This way the data stays consistent and several controllers can use it. Controllers shall consume the service data and transform it according to their `View` needs.
+
+![Data transfer in AngularJS](//i.imgur.com/aaYXtDJ.png)
+
+When the service data needs to be updated (for instance a new record is added or existing record is updated), controllers can send request to the service and service can update the data itself. Other controllers can update their data accordingly.
+
+#### Solutions
+In this article we are discussing two ways of achieving the above.
+* First one is to copy a part or transformed part or whole of the data in the controller. This is as described in the above images. This poses a problem that Controller is not aware when Service changes the  data. We will discuss it further in [detail](#solution-1)
+* Second one is to directly access the service data by creating a reference of the service in the controller
+
+![Data transfer in AngularJS](//i.imgur.com/Ye1vNs6.png)
 
 
 ### Why no Controller ?
