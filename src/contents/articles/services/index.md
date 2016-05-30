@@ -8,27 +8,31 @@ comments: true
 
 * [Summary](#summary)
 * [Introduction](#introduction)
-  * [Scope](#scope)
 * [General Idea](#general-idea)
   * [Service as Data containers](#service-as-data-containers)
   * [Immutable Data](#immutable-data)
   * [Solutions](#solutions)
-
+* [Advantages](#advantages)
 * * *
 
 ### Summary
-This article tries to decrease the amount of code written in Controllers and shift that to Services. Services are being used to store data. We do it in two ways :
+This article is an argument on merits and demerits of using service as the data  container and letting Controller call service for all its data needs. It tries to decrease the amount of code written in Controllers and shift that to Services. Services are being used to store data. We do it in two ways :
 1. Store data in service, copy required data to controller. Add watcher/observer in controller to update data.
 2. Store data in service and directly use service methods to access data in views
 
 We discuss the problems faced and try to fix them.
 
+
 * * *
 
 ### Introduction
-In all practical cases AngularJS code mostly resides in controllers. Controllers are heavily monitored and pampered by the framework, which makes it heavy and bloated. By literally living in controller all the time we are multiplying the problems. This article is an attempt to shift the weight to services from controllers and gauge the advantages and disadvantages.
-#### Scope
-The scope of this article is entirely to AngularJS 1.5+. Most of the concepts can be used in Angular 2. With Angular 2, few problems get solved and its more easier to use it there. So, we discuss it for 1 and try to fix the problems.
+In all practical cases AngularJS code mostly resides in controllers. Controllers are heavily monitored and pampered by the framework, which makes it heavy and bloated. By literally living in controller all the time we are multiplying the problems.
+We use the following page to demonstrate. Each city has a link to open new view. Thus it has new controller which fetches weather info from internet.
+
+<iframe style="width: 100%; height: 200px" src="http://embed.plnkr.co/C6NOvo" frameborder="0" allowfullscren="allowfullscren"></iframe>
+
+
+The scope of this article is entirely to AngularJS 1.5+.
 
 ### General Idea
 #### Service as Data containers
@@ -60,19 +64,31 @@ In this article we are discussing two ways of achieving the above.
 ![Data transfer in AngularJS](//i.imgur.com/Ye1vNs6.png)
 
 
-### Why no Controller ?
+### Advantages
+#### Service is singleton
+* Service being singleton gets initialized only once, so are the network calls and other logic.
+* Controller gets executed everytime the view is rendered, so are the HTTP calls and data transformations.
+* Pushing more code into service optimizes the amount of HTTP calls and the logic we do in it. It happens only once per app.
+* If needed we can do further calls or more logic as and when needed. We get more controll on how frequent we make the calls
 
 
-#### Service is singleton, Controller is not
-The story goes like this. Whenever we open a page, the controller required to render the view of the page is instantiated. That means the whole code in Controller is run ( this is important). Before doing that , all the services upon which the controller is dependent are instantiated( same, the whole code in each service is executed). But ... if the service is already instantiated, the instance is just passed (Singleton !). So if we open the same page in the same app 10 times, Service gets instantiated 1 time and controller code gets run all the 10 times . Imagine doing the same HTTP call every time you open the same page for some reason . Thats total waste.
+#### Service is reusable
+* We can easily inject Service into other services or controllers
+* Controller is confined only for its view
 
+#### Testing is easier in Service
+* Simple functions, straight forward to test
+* Enforce pure functions and test without any HTTP mocks
 
-#### Service can be injected
-Ok, controller is a loner whom no one cares except for the page its written for. Not fair to expect to be reusable. Still, the more social our code is, the easier it is to maintain and reuse.
+<iframe style="width: 100%; height: 400px" src="http://embed.plnkr.co/LDH0yT" frameborder="0" allowfullscren="allowfullscren"></iframe>
 
+In the above example we could easily test the `extractWeather` function without needing to mock the http and handle promises. The utility function could be tested easily.
 
-#### Easy to test
-Services are simple Javascript functions, so its straight forward to test them. Unlike in controller, where we can test only those that are tied to `scope` ( there is a way to overcome this as mentioned [here](/angular/articles/test-private/))
+#### More modular code
+* Moving data and logic to service makes Controller empty. Easier to break it into more simpler components
+* Otherwise we face challenges like :
+  * Sharing data from parent to child controller/component
+  *
 
 ### How to use service ( use cases)
 #### Store data (cache if possible)
