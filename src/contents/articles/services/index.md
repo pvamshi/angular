@@ -28,7 +28,6 @@ We discuss the problems faced and try to fix them.
 ### Introduction
 In all practical cases AngularJS code mostly resides in controllers. Controllers are heavily monitored and pampered by the framework, which makes it heavy and bloated. By literally living in controller all the time we are multiplying the problems.
 We use the following page to demonstrate. Each city has a link to open new view. Thus it has new controller which fetches weather info from internet.
-
 <iframe style="width: 100%; height: 200px" src="http://embed.plnkr.co/C6NOvo" frameborder="0" allowfullscren="allowfullscren"></iframe>
 
 
@@ -80,7 +79,7 @@ In this article we are discussing two ways of achieving the above.
 * Simple functions, straight forward to test
 * Enforce pure functions and test without any HTTP mocks
 
-<iframe style="width: 100%; height: 400px" src="http://embed.plnkr.co/LDH0yT" frameborder="0" allowfullscren="allowfullscren"></iframe>
+ <iframe style="width: 100%; height: 400px" src="http://embed.plnkr.co/LDH0yT" frameborder="0" allowfullscren="allowfullscren"></iframe>
 
 In the above example we could easily test the `extractWeather` function without needing to mock the http and handle promises. The utility function could be tested easily.
 
@@ -90,6 +89,89 @@ In the above example we could easily test the `extractWeather` function without 
   * Sharing data from parent to child controller/component
   *
 
+### Solution 1 : Observer Pattern
+* Service contains the data with getters and setters functions
+
+```javascript
+//file : modal-service.js
+//ModalService code
+
+var modals = [];
+function addModal(modal) {
+  modals.push(modal);
+}
+
+function getModal(idx){
+  return modals[idx];
+}
+
+function getAllModals(){
+  return modals;
+}
+
+```
+
+* Service provides functionality to let controllers register for a modal change
+
+```javascript
+//file : modal-service.js
+//ModalService code
+self.observers = {
+  add: [],
+  update: []
+};
+
+function addModal(modal) {
+  //http call to create
+  //on success do the following
+  modals.push(modal);
+  self.observers.add.forEach(function(createObserver) {
+    createObserver(modal);
+  });
+}
+```
+
+* All controllers interested to update the view based on data present in the service register with the service to notify them when the modal is added or updated
+
+```javascript
+//controller code
+var vm = this;
+ vm.modals = []; //or $scope.modals = [];
+
+ ModalService.observers.add.push(function(addedModal){
+   vm.modals.push(addedModal);
+ });
+```
+#### Advantages
+* All the modal related data resides in the service
+* Multiple controllers can register with the service and as soon as one of the controller modifies data, other controllers can update their view
+* Get rid of `$emit` and `$broadcast`. Using $emit pollutes all the controllers and the order of views is important and cannot be changed.
+* Using observer pattern makes it very light
+* We can decide which functions need to be observed and updated
+
+#### Problems
+* Lots of boilerplate code. We need to add lot of code in each service. Observers for each method etc.,
+
+**Solution**:
+ We can move all the boilerplate code to a single service and inject it to all the services. We can fetch the functions list and code to be executed after each function execution.
+```javascript
+
+service[functionName] = (function() {
+     var cached_func = service[functionName];
+     return function(modal) {
+       cached_func.apply(service, arguments);
+       service._observers[functionName].forEach(function(ob) {
+         ob(modal);
+       });
+     };
+   })();
+
+```
+
+
+<iframe style="width: 100%; height: 400px" src="http://embed.plnkr.co/JCHWMaUyR66YqO66WN83" frameborder="0" allowfullscren="allowfullscren"></iframe>
+
+Ex. : We have a data 'Person'
 ### How to use service ( use cases)
 #### Store data (cache if possible)
 Let the data be stored entirely in service. Before performing HTTP call check if the data exists in service already and return that. This goes for a full artible on it (coming soon, keep your questions open) .
