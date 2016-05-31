@@ -13,6 +13,11 @@ comments: true
   * [Immutable Data](#immutable-data)
   * [Solutions](#solutions)
 * [Advantages](#advantages)
+* [Solution 1: Observer Pattern](#solution-1-observer-pattern)
+  * [Advantages](#advantages-solution-1-)
+  * [problems](#problems-solution-1-)
+
+
 * * *
 
 ### Summary
@@ -142,24 +147,25 @@ var vm = this;
    vm.modals.push(addedModal);
  });
 ```
-#### Advantages
+#### Advantages (Solution 1 )
 * All the modal related data resides in the service
 * Multiple controllers can register with the service and as soon as one of the controller modifies data, other controllers can update their view
 * Get rid of `$emit` and `$broadcast`. Using $emit pollutes all the controllers and the order of views is important and cannot be changed.
 * Using observer pattern makes it very light
 * We can decide which functions need to be observed and updated
 
-#### Problems
-* Lots of boilerplate code. We need to add lot of code in each service. Observers for each method etc.,
+#### Problems (Solution 1)
+
+**Problem 1:** Lots of boilerplate code. We need to add lot of code in each service. Observers for each method etc.,
 
 **Solution**:
  We can move all the boilerplate code to a single service and inject it to all the services. We can fetch the functions list and code to be executed after each function execution.
 ```javascript
 
 service[functionName] = (function() {
-     var cached_func = service[functionName];
+     var cachedFunc = service[functionName];
      return function(modal) {
-       cached_func.apply(service, arguments);
+       cachedFunc.apply(service, arguments);
        service._observers[functionName].forEach(function(ob) {
          ob(modal);
        });
@@ -167,11 +173,44 @@ service[functionName] = (function() {
    })();
 
 ```
+Service code concedes to one line code
 
+```javascript
+
+ModalService.$inject = ['ObserverService'];
+
+function ModalService(os) {
+   os.wrap(self);
+   ...
+```
+Controller code remains the same.
+
+
+**Problem 2 :** When we keep adding the controllers to service observers, they keep getting accumulated. We need to remove the controller when view is changed ( controller is inactive).
+
+**Solution**
+we use `$destroy` to remove the observer.
+
+```javascript
+scope.$on('$destroy', function() {
+  this._observers.splice(addedIndex, 1);
+});
+```
+For this we need to pass the `scope` to the service. With this the controller code becomes :
+
+```javascript
+ModalService.observe('addModal', $scope, function(addedModal) {
+  vm.modals.push(addedModal);
+});
+```
+** Problem 3: ** Even while using `Controller As` syntax, we still need to inject $scope. And the controller is still populated with code related to observer. For each method of service, we need to add an observer method. But probably this is fine considering the advantages we get. We can check the second solution if that makes better sense.
+
+Before that , summarizing all the changes, the example is shown in the following plunkr. When we add a modal in a controller , it gets updated in other controllers:
 
 <iframe style="width: 100%; height: 400px" src="http://embed.plnkr.co/JCHWMaUyR66YqO66WN83" frameborder="0" allowfullscren="allowfullscren"></iframe>
 
-Ex. : We have a data 'Person'
+
+### Solution 2 : Data centric services
 ### How to use service ( use cases)
 #### Store data (cache if possible)
 Let the data be stored entirely in service. Before performing HTTP call check if the data exists in service already and return that. This goes for a full artible on it (coming soon, keep your questions open) .
