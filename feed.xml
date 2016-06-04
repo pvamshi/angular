@@ -268,6 +268,9 @@ vm.addModal = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keywor
   ModalService.addModal(vm.newModal);
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The basic example is shown in this plnkr&lt;/p&gt;
+&lt;iframe style=&quot;width: 100%; height: 400px&quot; src=&quot;http://embed.plnkr.co/HQVmSecqjWVT45FRO8z3&quot; frameborder=&quot;0&quot; allowfullscren=&quot;allowfullscren&quot;&gt;&lt;/iframe&gt;
+
 &lt;h4 id=&quot;advantages-solution-2-&quot;&gt;Advantages ( Solution 2)&lt;/h4&gt;
 &lt;p&gt;Along with the &lt;a href=&quot;#advantages-solution-1-&quot;&gt;advantages of solution 1&lt;/a&gt; we have
 these additional advantages: &lt;/p&gt;
@@ -343,7 +346,10 @@ for promise. &lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The above promise can be used in some other method too if needed. So that even
 if multiple service calls need the same http call, we are only creating one
-promise.&lt;/p&gt;
+promise.
+The code might look a littel huge and small mistake might cause bugs. So, we
+can move this logic to another service and inject in each service as shown in
+Solution 1 . &lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Problem 2&lt;/strong&gt; : Data is not sync with database. &lt;/p&gt;
 &lt;p&gt;We fetched data intially once and we are updating the modal data in service
 only when someone does a add or update call . &lt;/p&gt;
@@ -403,7 +409,11 @@ store the data.&lt;/p&gt;
     });
 }
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Conclusion : &lt;/p&gt;
+&lt;h3 id=&quot;conclusion-&quot;&gt;Conclusion :&lt;/h3&gt;
+&lt;p&gt;For very simple app, the usual Controller-centric way of coding is good. But in
+case of complex apps, its always good to be more modular and keep the
+controllers simple. Make use of services more than they are intended to and fix
+the problems with workarounds mentioned above. &lt;/p&gt;
 </description>
     </item>
     <item>

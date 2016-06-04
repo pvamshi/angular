@@ -281,6 +281,10 @@ vm.addModal = function(){
 }
 
 ```
+
+The basic example is shown in this plnkr
+<iframe style="width: 100%; height: 400px" src="http://embed.plnkr.co/HQVmSecqjWVT45FRO8z3" frameborder="0" allowfullscren="allowfullscren"></iframe>
+
 #### Advantages ( Solution 2)
 Along with the [advantages of solution 1](#advantages-solution-1-) we have
 these additional advantages: 
@@ -367,6 +371,9 @@ this.getModals = function(){
 The above promise can be used in some other method too if needed. So that even
 if multiple service calls need the same http call, we are only creating one
 promise.
+The code might look a littel huge and small mistake might cause bugs. So, we
+can move this logic to another service and inject in each service as shown in
+Solution 1 . 
 
 **Problem 2** : Data is not sync with database. 
 
@@ -437,5 +444,8 @@ this.addModal = function(modal){
 }
 ```
 
-Conclusion : 
-
+### Conclusion : 
+For very simple app, the usual Controller-centric way of coding is good. But in
+case of complex apps, its always good to be more modular and keep the
+controllers simple. Make use of services more than they are intended to and fix
+the problems with workarounds mentioned above. 
