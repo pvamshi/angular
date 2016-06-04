@@ -88,6 +88,10 @@ We use the following page to demonstrate. Each city has a link to open new view.
 <li>Controller gets executed everytime the view is rendered, so are the <span class="caps">HTTP</span> calls and data&nbsp;transformations.</li>
 <li>Pushing more code into service optimizes the amount of <span class="caps">HTTP</span> calls and the logic we do in it. It happens only once per&nbsp;app.</li>
 <li>If needed we can do further calls or more logic as and when needed. We get more controll on how frequent we make the&nbsp;calls</li>
+<li>If multiple components used in the view or the same component used in
+  <code>ng-repeat</code> having the logic and memory in controller makes the app
+  sluggish. By pushing the logic and data to service, we are making
+  components very light and more freedom to modularize the&nbsp;code</li>
 </ul>
 <h4 id="service-is-reusable">Service is&nbsp;reusable</h4>
 <ul>
@@ -274,6 +278,8 @@ these additional&nbsp;advantages: </p>
 <ul>
 <li>Minimal code in Controller ( only appending the services to view and&nbsp;write)</li>
 <li>Angular adds watchers by default to all views so no need to add extra&nbsp;watchers</li>
+<li>Controllers wont store data. Being very light they can be modularized and
+  played&nbsp;around</li>
 </ul>
 <h4 id="problems-solution-2-">Problems ( Solution&nbsp;2)</h4>
 <p><strong> Problem 1 </strong> : ( very important) Watchers cause infinite http calls. 
