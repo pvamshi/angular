@@ -5,9 +5,401 @@
     <atom:link href="http://vamshi-krishna.com/angular/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://vamshi-krishna.com/angular</link>
     <description>Blogs on web development using AngularJS</description>
-    <pubDate>Wed, 04 May 2016 17:00:00 -0700</pubDate>
+    <pubDate>Sat, 14 May 2016 21:32:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Service centric architecture in AngularJS</title>
+      <link>http://vamshi-krishna.com/angular/angular/articles/services/</link>
+      <pubDate>Sat, 14 May 2016 21:32:00 -0700</pubDate>
+      <guid isPermaLink="true">http://vamshi-krishna.com/angular/angular/articles/services/</guid>
+      <author></author>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#summary&quot;&gt;Summary&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#introduction&quot;&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#general-idea&quot;&gt;General Idea&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#service-as-data-containers&quot;&gt;Service as Data containers&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#immutable-data&quot;&gt;Immutable Data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#solutions&quot;&gt;Solutions&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#advantages&quot;&gt;Advantages&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#solution-1-observer-pattern&quot;&gt;Solution 1: Observer Pattern&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#advantages-solution-1-&quot;&gt;Advantages&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#problems-solution-1-&quot;&gt;problems&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#solution-2-data-centric-services&quot;&gt;Solution 2: Data centric services&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#advantages-solution-2-&quot;&gt;Advantages&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#problems-solution-2-&quot;&gt;problems&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;summary&quot;&gt;Summary&lt;/h3&gt;
+&lt;p&gt;This article is an argument on merits and demerits of using service as the data  container and letting Controller call service for all its data needs. It tries to decrease the amount of code written in Controllers and shift that to Services. Services are being used to store data. We do it in two ways :&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Store data in service, copy required data to controller. Add watcher/observer in controller to update data.&lt;/li&gt;
+&lt;li&gt;Store data in service and directly use service methods to access data in views&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;We discuss the problems faced and try to fix them.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;In all practical cases AngularJS code mostly resides in controllers. Controllers are heavily monitored and pampered by the framework, which makes it heavy and bloated. By literally living in controller all the time we are multiplying the problems.
+We use the following page to demonstrate. Each city has a link to open new view. Thus it has new controller which fetches weather info from internet.&lt;/p&gt;
+&lt;iframe style=&quot;width: 100%; height: 200px&quot; src=&quot;http://embed.plnkr.co/C6NOvo&quot; frameborder=&quot;0&quot; allowfullscren=&quot;allowfullscren&quot;&gt;&lt;/iframe&gt;
+
+
+&lt;p&gt;The scope of this article is entirely to AngularJS 1.5+.&lt;/p&gt;
+&lt;h3 id=&quot;general-idea&quot;&gt;General Idea&lt;/h3&gt;
+&lt;h4 id=&quot;service-as-data-containers&quot;&gt;Service as Data containers&lt;/h4&gt;
+&lt;p&gt;The data flow in AngularJS is as follows :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Controller asks service to give data&lt;/li&gt;
+&lt;li&gt;Service does a HTTP call and return the promise to Controller&lt;/li&gt;
+&lt;li&gt;Controller waits till promise is resolved and adds returned data to scope&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Essentially the data is transfered from backend to scope, service just acts as a medium of transfer.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://i.imgur.com/8soKsIO.png&quot; alt=&quot;Data transfer in AngularJS&quot;&gt;&lt;/p&gt;
+&lt;p&gt;We are trying to stop the data in the service itself and make controller access the data from the service whenever it needs.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://i.imgur.com/0fArCPA.png&quot; alt=&quot;Data transfer in AngularJS&quot;&gt;&lt;/p&gt;
+&lt;h4 id=&quot;immutable-data&quot;&gt;Immutable data&lt;/h4&gt;
+&lt;p&gt;The data stored in service is Immutable by the controllers. In other words controllers have read-only access. This way the data stays consistent and several controllers can use it. Controllers shall consume the service data and transform it according to their &lt;code&gt;View&lt;/code&gt; needs.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://i.imgur.com/aaYXtDJ.png&quot; alt=&quot;Data transfer in AngularJS&quot;&gt;&lt;/p&gt;
+&lt;p&gt;When the service data needs to be updated (for instance a new record is added or existing record is updated), controllers can send request to the service and service can update the data itself. Other controllers can update their data accordingly.&lt;/p&gt;
+&lt;h4 id=&quot;solutions&quot;&gt;Solutions&lt;/h4&gt;
+&lt;p&gt;In this article we are discussing two ways of achieving the above.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;First one is to copy a part or transformed part or whole of the data in the controller. This is as described in the above images. This poses a problem that Controller is not aware when Service changes the  data. We will discuss it further in &lt;a href=&quot;#solution-1-observer-pattern&quot;&gt;detail&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Second one is to directly access the service data by creating a reference of the service in the controller&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://i.imgur.com/Ye1vNs6.png&quot; alt=&quot;Data transfer in AngularJS&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;advantages&quot;&gt;Advantages&lt;/h3&gt;
+&lt;h4 id=&quot;service-is-singleton&quot;&gt;Service is singleton&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Service being singleton gets initialized only once, so are the network calls and other logic.&lt;/li&gt;
+&lt;li&gt;Controller gets executed everytime the view is rendered, so are the HTTP calls and data transformations.&lt;/li&gt;
+&lt;li&gt;Pushing more code into service optimizes the amount of HTTP calls and the logic we do in it. It happens only once per app.&lt;/li&gt;
+&lt;li&gt;If needed we can do further calls or more logic as and when needed. We get more controll on how frequent we make the calls&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;service-is-reusable&quot;&gt;Service is reusable&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;We can easily inject Service into other services or controllers&lt;/li&gt;
+&lt;li&gt;Controller is confined only for its view&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;testing-is-easier-in-service&quot;&gt;Testing is easier in Service&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Simple functions, straight forward to test&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Enforce pure functions and test without any HTTP mocks&lt;/p&gt;
+&lt;iframe style=&quot;width: 100%; height: 400px&quot; src=&quot;http://embed.plnkr.co/LDH0yT&quot; frameborder=&quot;0&quot; allowfullscren=&quot;allowfullscren&quot;&gt;&lt;/iframe&gt;
+
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In the above example we could easily test the &lt;code&gt;extractWeather&lt;/code&gt; function without needing to mock the http and handle promises. The utility function could be tested easily.&lt;/p&gt;
+&lt;h4 id=&quot;more-modular-code&quot;&gt;More modular code&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Moving data and logic to service makes Controller empty. Easier to break it into more simpler components&lt;/li&gt;
+&lt;li&gt;Otherwise we face challenges like :&lt;ul&gt;
+&lt;li&gt;Sharing data from parent to child controller/component&lt;/li&gt;
+&lt;li&gt;When one component or controller updates the data, it needs to inform other
+  component . For this we need to rely on &lt;code&gt;$emit&lt;/code&gt; and we are opening a new
+  can of problems&lt;/li&gt;
+&lt;li&gt;The same code is repeated in multiple components which can be moved to
+  service.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;solution-1-observer-pattern&quot;&gt;Solution 1 : Observer Pattern&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Service contains the data with getters and setters functions&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//file : modal-service.js&lt;/span&gt;
+&lt;span class=&quot;comment&quot;&gt;//ModalService code&lt;/span&gt;
+
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; modals = [];
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;addModal&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;modal&lt;/span&gt;) &lt;/span&gt;{
+  modals.push(modal);
+}
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getModal&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;idx&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; modals[idx];
+}
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getAllModals&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; modals;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Service provides functionality to let controllers register for a modal change&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//file : modal-service.js&lt;/span&gt;
+&lt;span class=&quot;comment&quot;&gt;//ModalService code&lt;/span&gt;
+self.observers = {
+  add: [],
+  update: []
+};
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;addModal&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;modal&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;comment&quot;&gt;//http call to create&lt;/span&gt;
+  &lt;span class=&quot;comment&quot;&gt;//on success do the following&lt;/span&gt;
+  modals.push(modal);
+  self.observers.add.forEach(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;createObserver&lt;/span&gt;) &lt;/span&gt;{
+    createObserver(modal);
+  });
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;All controllers interested to update the view based on data present in the service register with the service to notify them when the modal is added or updated&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//controller code&lt;/span&gt;
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; vm = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;;
+ vm.modals = []; &lt;span class=&quot;comment&quot;&gt;//or $scope.modals = [];&lt;/span&gt;
+
+ ModalService.observers.add.push(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;addedModal&lt;/span&gt;)&lt;/span&gt;{
+   vm.modals.push(addedModal);
+ });
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id=&quot;advantages-solution-1-&quot;&gt;Advantages (Solution 1 )&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;All the modal related data resides in the service&lt;/li&gt;
+&lt;li&gt;Multiple controllers can register with the service and as soon as one of the controller modifies data, other controllers can update their view&lt;/li&gt;
+&lt;li&gt;Get rid of &lt;code&gt;$emit&lt;/code&gt; and &lt;code&gt;$broadcast&lt;/code&gt;. Using $emit pollutes all the controllers and the order of views is important and cannot be changed.&lt;/li&gt;
+&lt;li&gt;Using observer pattern makes it very light&lt;/li&gt;
+&lt;li&gt;We can decide which functions need to be observed and updated&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;problems-solution-1-&quot;&gt;Problems (Solution 1)&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt;Problem 1:&lt;/strong&gt; Lots of boilerplate code. We need to add lot of code in each service. Observers for each method etc.,&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Solution&lt;/strong&gt;:
+ We can move all the boilerplate code to a single service and inject it to all the services. We can fetch the functions list and code to be executed after each function execution.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;abc&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;a, b, c&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; a + b + c;
+}
+
+abc = (&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;func, postexec&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; re = func.apply(service, &lt;span class=&quot;built_in&quot;&gt;arguments&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;// service is service instance (this)&lt;/span&gt;
+    postexec(); &lt;span class=&quot;comment&quot;&gt;// executing the callbacks&lt;/span&gt;
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; re;
+  };
+})(abc, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'executing all callbacks registered'&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;//iterate over callbacks and execute them&lt;/span&gt;
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Service code concedes to one line code&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;
+ModalService.$inject = [&lt;span class=&quot;string&quot;&gt;'ObserverService'&lt;/span&gt;];
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ModalService&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;os&lt;/span&gt;) &lt;/span&gt;{
+   os.wrap(self);
+   ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Controller code remains the same. A plnkr is provided below with full working example.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Problem 2 :&lt;/strong&gt; When we keep adding the controllers to service observers, they keep getting accumulated. We need to remove the controller when view is changed ( controller is inactive).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Solution&lt;/strong&gt;
+we use &lt;code&gt;$destroy&lt;/code&gt; to remove the observer in the &lt;code&gt;ObserverService&lt;/code&gt; code.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;scope.$on(&lt;span class=&quot;string&quot;&gt;'$destroy'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._observers.splice(addedIndex, &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;);
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;For this we need to pass the &lt;code&gt;scope&lt;/code&gt; to the service. With this the controller code becomes :&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;ModalService.observe(&lt;span class=&quot;string&quot;&gt;'addModal'&lt;/span&gt;, $scope, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;addedModal&lt;/span&gt;) &lt;/span&gt;{
+  vm.modals.push(addedModal);
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt; Problem 3: &lt;/strong&gt; Even while using &lt;code&gt;Controller As&lt;/code&gt; syntax, we still need to inject $scope. And the controller is still populated with code related to observer. For each method of service, we need to add an observer method. But probably this is fine considering the advantages we get. We can check the second solution if that makes better sense.&lt;/p&gt;
+&lt;p&gt;Before that , summarizing all the changes, the example is shown in the following plunkr. When we add a modal in a controller , it gets updated in other controllers:&lt;/p&gt;
+&lt;iframe style=&quot;width: 100%; height: 400px&quot; src=&quot;http://embed.plnkr.co/JCHWMaUyR66YqO66WN83&quot; frameborder=&quot;0&quot; allowfullscren=&quot;allowfullscren&quot;&gt;&lt;/iframe&gt;
+
+
+&lt;h3 id=&quot;solution-2-data-centric-services&quot;&gt;Solution 2 : Data centric services&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Service code remains same as Solution 1&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//file : modal-service.js&lt;/span&gt;
+&lt;span class=&quot;comment&quot;&gt;//ModalService code&lt;/span&gt;
+
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; modals = [];
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;addModal&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;modal&lt;/span&gt;) &lt;/span&gt;{
+  modals.push(modal);
+}
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getModal&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;idx&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; modals[idx];
+}
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;getAllModals&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; modals;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Append the read methods of the service directly to the view, so it can access
+  directly&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//Controller code &lt;/span&gt;
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; modal = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;; 
+modal.getAllModals = ModalService.getAllModals;
+modal.getModal = ModalService.getModal;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;View is going to look like this:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-html&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;ng-controller&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;ModalController as modal&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;ng-repeat&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;modal in modal.getAllModals()&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;
+    ...
+  &lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As we are directly calling the service methods in the view, when a data changes
+in the service, the view knows it and automatically updates the html
+accordingly.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Updating the modal data is done using the regular controller to service calls&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//Controlle code &lt;/span&gt;
+
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; vm = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;;
+
+vm.addModal = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  ModalService.addModal(vm.newModal);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id=&quot;advantages-solution-2-&quot;&gt;Advantages ( Solution 2)&lt;/h4&gt;
+&lt;p&gt;Along with the &lt;a href=&quot;#advantages-solution-1-&quot;&gt;advantages of solution 1&lt;/a&gt; we have
+these additional advantages: &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Minimal code in Controller ( only appending the services to view and write)&lt;/li&gt;
+&lt;li&gt;Angular adds watchers by default to all views so no need to add extra
+  watchers&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&quot;problems-solution-2-&quot;&gt;Problems ( Solution 2)&lt;/h4&gt;
+&lt;p&gt;&lt;strong&gt; Problem 1 &lt;/strong&gt; : ( very important) Watchers cause infinite http calls. 
+This is probably only reason why this method should not be used without
+understanding how it works. Imagine a code like this : &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//ModalService code &lt;/span&gt;
+
+&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getAllModals = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  $http.get(&lt;span class=&quot;string&quot;&gt;'...'&lt;/span&gt;).then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;response&lt;/span&gt;)&lt;/span&gt;{
+    modals = response.data;
+  })
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;When this method is directly accessed in view, it is by default added to
+watcher and for every single event this method gets called and we get infinite
+http calls. Ofcourse this is true even if we are using the regular controller
+method in the view like this : &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//controller code &lt;/span&gt;
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; vm = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;;
+vm.getModals = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;comment&quot;&gt;// service code which does http call&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-html&quot;&gt;&lt;span class=&quot;comment&quot;&gt;&amp;lt;!-- View code--&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;attr&quot;&gt;ng-repeat&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;modl in vm.getModals()&quot;&lt;/span&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;tag&quot;&gt;&amp;lt;/&lt;span class=&quot;name&quot;&gt;div&lt;/span&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Angular prevents this by giving an error but still its a crime to attach a
+function which does http call to the view. &lt;/p&gt;
+&lt;p&gt;&lt;strong&gt; Solution &lt;/strong&gt; : 
+Initially the service do not have any modals. So, we need to do either of : &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Call HTTP call when service loads &lt;/li&gt;
+&lt;li&gt;Do the HTTP call when get call is made for the first time&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;First solution is not feasible as we will be loading too much data even if its
+not needed. Second way causes the problem we are discussing now. 
+We can fix this by adding a condition in our get call. &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getModals = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(!modals || !modals.length){
+    $http.get(&lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;)
+         .then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;res&lt;/span&gt;)&lt;/span&gt;{
+            modals = res.data;
+          });
+  }
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; modals;
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This again causes similar issue, when we call this twice in succession, it does
+another http call when a call is already in progress. So we add another check
+for promise. &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; getModalsPromise ;
+&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getModals = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(!modals || !modals.length){
+    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(!getModalPromise){
+      getModalPromise = $http.get(&lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;);
+      getModalPromise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;res&lt;/span&gt;)&lt;/span&gt;{
+          modals = res.data;
+        });
+    }
+  }
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; modals;
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The above promise can be used in some other method too if needed. So that even
+if multiple service calls need the same http call, we are only creating one
+promise.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Problem 2&lt;/strong&gt; : Data is not sync with database. &lt;/p&gt;
+&lt;p&gt;We fetched data intially once and we are updating the modal data in service
+only when someone does a add or update call . &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; modals = [];
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; getModalsPromise ;
+&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getModals = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  ...
+  return modals;
+};
+
+&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.addModal = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;modal&lt;/span&gt;)&lt;/span&gt;{
+  $http.post(&lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;,{})
+    .then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+      modals.push(modal);
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Only when one of the controller/component calls the addModal we are updating
+our modals with new modal. What happens when some other user who added a modal
+to the database which, our modal service is not aware of ? There is a sync
+issue that arises.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Solution&lt;/strong&gt;: We can fix this in two ways : &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Do a http call frequently. Use $timeout and perform http call based on
+  severity every 5 min or 10 min . &lt;/li&gt;
+&lt;li&gt;Have a socketio connection, which updates the service whenever there is a
+  data change in the backend&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt; Problem 3 &lt;/strong&gt;: Too much data in memory&lt;/p&gt;
+&lt;p&gt;In case the modal list is too high or there are lots of services. The memory
+usage might get too large. &lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Solution&lt;/strong&gt; : To fix this issue we can use session storage to
+store the data.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;
+
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; getModalsPromise ;
+&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getModals = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; modals = sessionStorage.getItem(&lt;span class=&quot;string&quot;&gt;'modals'&lt;/span&gt;);
+  &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(!modals || !modals.length){
+    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(!getModalPromise){
+      getModalPromise = $http.get(&lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;);
+      getModalPromise.then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;res&lt;/span&gt;)&lt;/span&gt;{
+          sessionStorage.setItem(&lt;span class=&quot;string&quot;&gt;'modals'&lt;/span&gt;,res.data);
+        });
+    }
+  }
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; modals;
+};
+
+&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.addModal = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;modal&lt;/span&gt;)&lt;/span&gt;{
+  $http.post(&lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;,{})
+    .then(&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;)&lt;/span&gt;{
+      &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; modals = sessionStorage.getItem(&lt;span class=&quot;string&quot;&gt;'modals'&lt;/span&gt;);
+      modals.push(modal);
+      sessionStorage.setItem(&lt;span class=&quot;string&quot;&gt;'modals'&lt;/span&gt;,modals);
+    });
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Conclusion : &lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>Testing private functions in Angular</title>
       <link>http://vamshi-krishna.com/angular/angular/articles/test-private/</link>
@@ -92,37 +484,6 @@ describe(&lt;span class=&quot;string&quot;&gt;'main tests'&lt;/span&gt;,tests);
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Works great !!&lt;/p&gt;
 &lt;p&gt;The same can be used for private functions in Controllers too.&lt;/p&gt;
-</description>
-    </item>
-    <item>
-      <title>Service based architecture</title>
-      <link>http://vamshi-krishna.com/angular/angular/articles/services/</link>
-      <pubDate>Wed, 04 May 2016 17:00:00 -0700</pubDate>
-      <guid isPermaLink="true">http://vamshi-krishna.com/angular/angular/articles/services/</guid>
-      <author></author>
-      <description>&lt;p&gt;AngularJS code resides mostly in the following :&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Controllers&lt;/li&gt;
-&lt;li&gt;Services&lt;/li&gt;
-&lt;li&gt;Directives&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;The weightage depends entirely on the architecture. We can write whole app using only Controller or entirely using directives. This blog is about giving maximum weightage to services and using directives/controllers only for view rendering. How it is advantageous and how to overcome the hurdles.&lt;/p&gt;
-&lt;p&gt;For the sake of simplicity lets just compare Controller with Service. Controller vs Directive/Component (ng-1.5) is due for another blog.&lt;/p&gt;
-&lt;h3 id=&quot;why-no-controller-&quot;&gt;Why no Controller ?&lt;/h3&gt;
-&lt;h4 id=&quot;service-is-singleton-controller-is-not&quot;&gt;Service is singleton, Controller is not&lt;/h4&gt;
-&lt;p&gt;The story goes like this. Whenever we open a page, the controller required to render the view of the page is instantiated. That means the whole code in Controller is run ( this is important). Before doing that , all the services upon which the controller is dependent are instantiated( same, the whole code in each service is executed). But … if the service is already instantiated, the instance is just passed (Singleton !). So if we open the same page in the same app 10 times, Service gets instantiated 1 time and controller code gets run all the 10 times . Imagine doing the same HTTP call every time you open the same page for some reason . Thats total waste.&lt;/p&gt;
-&lt;h4 id=&quot;service-can-be-injected&quot;&gt;Service can be injected&lt;/h4&gt;
-&lt;p&gt;Ok, controller is a loner whom no one cares except for the page its written for. Not fair to expect to be reusable. Still, the more social our code is, the easier it is to maintain and reuse.&lt;/p&gt;
-&lt;h4 id=&quot;easy-to-test&quot;&gt;Easy to test&lt;/h4&gt;
-&lt;p&gt;Services are simple Javascript functions, so its straight forward to test them. Unlike in controller, where we can test only those that are tied to &lt;code&gt;scope&lt;/code&gt; ( there is a way to overcome this as mentioned &lt;a href=&quot;http://vamshi-krishna.com/angular/articles/test-private/&quot;&gt;here&lt;/a&gt;)&lt;/p&gt;
-&lt;h3 id=&quot;how-to-use-service-use-cases-&quot;&gt;How to use service ( use cases)&lt;/h3&gt;
-&lt;h4 id=&quot;store-data-cache-if-possible-&quot;&gt;Store data (cache if possible)&lt;/h4&gt;
-&lt;p&gt;Let the data be stored entirely in service. Before performing HTTP call check if the data exists in service already and return that. This goes for a full artible on it (coming soon, keep your questions open) .&lt;/p&gt;
-&lt;h4 id=&quot;util-services&quot;&gt;Util services&lt;/h4&gt;
-&lt;p&gt;Use services to have util functions as much as possible. If the data object contains 10 fields, all of them might not be needed in controller. Sometimes the data needed is fusion of multiple data sources etc., So the flow would be like :&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;Controller --&amp;gt; Util Service --&amp;gt; Data Service
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The goal is to make Controller as light as possible. Use it absolutely only for tying view data to model data. Its ideal to have these util services pure functions, which do not store any kind of data.&lt;/p&gt;
-&lt;p&gt;This article will be updated with more details. And there are many unanswered questions, need more examples etc., We will be seeing all of them shortly.&lt;/p&gt;
 </description>
     </item>
   </channel>

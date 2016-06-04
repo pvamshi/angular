@@ -16,8 +16,9 @@ comments: true
 * [Solution 1: Observer Pattern](#solution-1-observer-pattern)
   * [Advantages](#advantages-solution-1-)
   * [problems](#problems-solution-1-)
-
-
+* [Solution 2: Data centric services](#solution-2-data-centric-services)
+  * [Advantages](#advantages-solution-2-)
+  * [problems](#problems-solution-2-)
 * * *
 
 ### Summary
@@ -62,7 +63,7 @@ When the service data needs to be updated (for instance a new record is added or
 
 #### Solutions
 In this article we are discussing two ways of achieving the above.
-* First one is to copy a part or transformed part or whole of the data in the controller. This is as described in the above images. This poses a problem that Controller is not aware when Service changes the  data. We will discuss it further in [detail](#solution-1)
+* First one is to copy a part or transformed part or whole of the data in the controller. This is as described in the above images. This poses a problem that Controller is not aware when Service changes the  data. We will discuss it further in [detail](#solution-1-observer-pattern)
 * Second one is to directly access the service data by creating a reference of the service in the controller
 
 ![Data transfer in AngularJS](//i.imgur.com/Ye1vNs6.png)
@@ -92,7 +93,11 @@ In the above example we could easily test the `extractWeather` function without 
 * Moving data and logic to service makes Controller empty. Easier to break it into more simpler components
 * Otherwise we face challenges like :
   * Sharing data from parent to child controller/component
-  *
+  * When one component or controller updates the data, it needs to inform other
+      component . For this we need to rely on `$emit` and we are opening a new
+      can of problems
+  * The same code is repeated in multiple components which can be moved to
+      service.
 
 ### Solution 1 : Observer Pattern
 * Service contains the data with getters and setters functions
@@ -162,15 +167,20 @@ var vm = this;
  We can move all the boilerplate code to a single service and inject it to all the services. We can fetch the functions list and code to be executed after each function execution.
 ```javascript
 
-service[functionName] = (function() {
-     var cachedFunc = service[functionName];
-     return function(modal) {
-       cachedFunc.apply(service, arguments);
-       service._observers[functionName].forEach(function(ob) {
-         ob(modal);
-       });
-     };
-   })();
+function abc(a, b, c) {
+  return a + b + c;
+}
+
+abc = (function(func, postexec) {
+  return function() {
+    var re = func.apply(service, arguments); // service is service instance (this)
+    postexec(); // executing the callbacks
+    return re;
+  };
+})(abc, function() {
+  console.log('executing all callbacks registered'); //iterate over callbacks and execute them
+});
+
 
 ```
 Service code concedes to one line code
@@ -183,13 +193,13 @@ function ModalService(os) {
    os.wrap(self);
    ...
 ```
-Controller code remains the same.
+Controller code remains the same. A plnkr is provided below with full working example.
 
 
 **Problem 2 :** When we keep adding the controllers to service observers, they keep getting accumulated. We need to remove the controller when view is changed ( controller is inactive).
 
 **Solution**
-we use `$destroy` to remove the observer.
+we use `$destroy` to remove the observer in the `ObserverService` code.
 
 ```javascript
 scope.$on('$destroy', function() {
@@ -211,15 +221,215 @@ Before that , summarizing all the changes, the example is shown in the following
 
 
 ### Solution 2 : Data centric services
-### How to use service ( use cases)
-#### Store data (cache if possible)
-Let the data be stored entirely in service. Before performing HTTP call check if the data exists in service already and return that. This goes for a full artible on it (coming soon, keep your questions open) .
+* Service code remains same as Solution 1
 
-#### Util services
-Use services to have util functions as much as possible. If the data object contains 10 fields, all of them might not be needed in controller. Sometimes the data needed is fusion of multiple data sources etc., So the flow would be like :
-```
-Controller --> Util Service --> Data Service
-```
-The goal is to make Controller as light as possible. Use it absolutely only for tying view data to model data. Its ideal to have these util services pure functions, which do not store any kind of data.
+```javascript
+//file : modal-service.js
+//ModalService code
 
-This article will be updated with more details. And there are many unanswered questions, need more examples etc., We will be seeing all of them shortly.
+var modals = [];
+function addModal(modal) {
+  modals.push(modal);
+}
+
+function getModal(idx){
+  return modals[idx];
+}
+
+function getAllModals(){
+  return modals;
+}
+
+```
+
+* Append the read methods of the service directly to the view, so it can access
+    directly
+
+```javascript
+//Controller code 
+var modal = this; 
+modal.getAllModals = ModalService.getAllModals;
+modal.getModal = ModalService.getModal;
+
+```
+* View is going to look like this:
+
+```html
+<div ng-controller="ModalController as modal">
+  <div ng-repeat="modal in modal.getAllModals()">
+    ...
+  </div>
+</div>
+```
+As we are directly calling the service methods in the view, when a data changes
+in the service, the view knows it and automatically updates the html
+accordingly.
+
+* Updating the modal data is done using the regular controller to service calls
+
+```javascript
+//Controlle code 
+
+var vm = this;
+
+vm.addModal = function(){
+  ModalService.addModal(vm.newModal);
+}
+
+```
+#### Advantages ( Solution 2)
+Along with the [advantages of solution 1](#advantages-solution-1-) we have
+these additional advantages: 
+* Minimal code in Controller ( only appending the services to view and write)
+* Angular adds watchers by default to all views so no need to add extra
+    watchers
+
+#### Problems ( Solution 2)
+** Problem 1 ** : ( very important) Watchers cause infinite http calls. 
+This is probably only reason why this method should not be used without
+understanding how it works. Imagine a code like this : 
+
+```javascript
+//ModalService code 
+
+this.getAllModals = function(){
+  $http.get('...').then(function(response){
+    modals = response.data;
+  })
+}
+```
+When this method is directly accessed in view, it is by default added to
+watcher and for every single event this method gets called and we get infinite
+http calls. Ofcourse this is true even if we are using the regular controller
+method in the view like this : 
+
+```javascript
+//controller code 
+var vm = this;
+vm.getModals = function(){
+  // service code which does http call
+}
+
+```
+
+```html
+<!-- View code-->
+<div ng-repeat="modl in vm.getModals()">
+</div>
+```
+Angular prevents this by giving an error but still its a crime to attach a
+function which does http call to the view. 
+
+** Solution ** : 
+Initially the service do not have any modals. So, we need to do either of : 
+* Call HTTP call when service loads 
+* Do the HTTP call when get call is made for the first time
+
+First solution is not feasible as we will be loading too much data even if its
+not needed. Second way causes the problem we are discussing now. 
+We can fix this by adding a condition in our get call. 
+
+```javascript
+this.getModals = function(){
+  if(!modals || !modals.length){
+    $http.get('')
+         .then(function(res){
+            modals = res.data;
+          });
+  }
+  return modals;
+};
+```
+This again causes similar issue, when we call this twice in succession, it does
+another http call when a call is already in progress. So we add another check
+for promise. 
+
+```javascript
+var getModalsPromise ;
+this.getModals = function(){
+  if(!modals || !modals.length){
+    if(!getModalPromise){
+      getModalPromise = $http.get('');
+      getModalPromise.then(function(res){
+          modals = res.data;
+        });
+    }
+  }
+  return modals;
+};
+```
+The above promise can be used in some other method too if needed. So that even
+if multiple service calls need the same http call, we are only creating one
+promise.
+
+**Problem 2** : Data is not sync with database. 
+
+We fetched data intially once and we are updating the modal data in service
+only when someone does a add or update call . 
+
+```javascript
+
+var modals = [];
+var getModalsPromise ;
+this.getModals = function(){
+  ...
+  return modals;
+};
+
+this.addModal = function(modal){
+  $http.post('',{})
+    .then(function(){
+      modals.push(modal);
+    });
+}
+```
+
+Only when one of the controller/component calls the addModal we are updating
+our modals with new modal. What happens when some other user who added a modal
+to the database which, our modal service is not aware of ? There is a sync
+issue that arises.
+
+**Solution**: We can fix this in two ways : 
+* Do a http call frequently. Use $timeout and perform http call based on
+    severity every 5 min or 10 min . 
+* Have a socketio connection, which updates the service whenever there is a
+    data change in the backend
+
+** Problem 3 **: Too much data in memory
+
+In case the modal list is too high or there are lots of services. The memory
+usage might get too large. 
+
+**Solution** : To fix this issue we can use session storage to
+store the data.
+
+
+```javascript
+
+
+var getModalsPromise ;
+this.getModals = function(){
+  var modals = sessionStorage.getItem('modals');
+  if(!modals || !modals.length){
+    if(!getModalPromise){
+      getModalPromise = $http.get('');
+      getModalPromise.then(function(res){
+          sessionStorage.setItem('modals',res.data);
+        });
+    }
+  }
+  return modals;
+};
+
+this.addModal = function(modal){
+  $http.post('',{})
+    .then(function(){
+      var modals = sessionStorage.getItem('modals');
+      modals.push(modal);
+      sessionStorage.setItem('modals',modals);
+    });
+}
+```
+
+Conclusion : 
+
