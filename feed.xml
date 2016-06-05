@@ -5,13 +5,13 @@
     <atom:link href="http://vamshi-krishna.com/angular/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://vamshi-krishna.com/angular</link>
     <description>Blogs on web development using AngularJS</description>
-    <pubDate>Sat, 14 May 2016 21:32:00 -0700</pubDate>
+    <pubDate>Sat, 04 Jun 2016 21:32:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
     <item>
       <title>Service centric architecture in AngularJS</title>
       <link>http://vamshi-krishna.com/angular/angular/articles/services/</link>
-      <pubDate>Sat, 14 May 2016 21:32:00 -0700</pubDate>
+      <pubDate>Sat, 04 Jun 2016 21:32:00 -0700</pubDate>
       <guid isPermaLink="true">http://vamshi-krishna.com/angular/angular/articles/services/</guid>
       <author></author>
       <description>&lt;ul&gt;
@@ -34,6 +34,7 @@
 &lt;li&gt;&lt;a href=&quot;#problems-solution-2-&quot;&gt;problems&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#conclusion-&quot;&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&quot;summary&quot;&gt;Summary&lt;/h3&gt;

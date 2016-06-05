@@ -1,7 +1,7 @@
 ---
 title: Service centric architecture in AngularJS
 author: Vamshi Krishna
-date: 2016-05-15 10:02:00 +05:30
+date: 2016-06-05 10:02:00 +05:30
 template: article.jade
 comments: true
 ---
@@ -19,6 +19,7 @@ comments: true
 * [Solution 2: Data centric services](#solution-2-data-centric-services)
   * [Advantages](#advantages-solution-2-)
   * [problems](#problems-solution-2-)
+* [Conclusion](#conclusion-)
 * * *
 
 ### Summary
