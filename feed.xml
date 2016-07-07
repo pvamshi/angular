@@ -5,9 +5,145 @@
     <atom:link href="http://vamshi-krishna.com/angular/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://vamshi-krishna.com/angular</link>
     <description>Blogs on web development using AngularJS</description>
-    <pubDate>Sat, 04 Jun 2016 21:32:00 -0700</pubDate>
+    <pubDate>Wed, 06 Jul 2016 05:32:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>Project building using node</title>
+      <link>http://vamshi-krishna.com/angular/angular/articles/node-build/</link>
+      <pubDate>Wed, 06 Jul 2016 05:32:00 -0700</pubDate>
+      <guid isPermaLink="true">http://vamshi-krishna.com/angular/angular/articles/node-build/</guid>
+      <author></author>
+      <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;The de facto way of watching and building a UI project is by using either of grunt, gulp or rarely npm. In this blog we will see how it can be done using node alone.  &lt;/p&gt;
+&lt;h3 id=&quot;general-idea&quot;&gt;General Idea&lt;/h3&gt;
+&lt;p&gt;We will be using node apps to perform these actions. Depending on grunt ( I will be talking mostly about grunt as that is what being used in our project) might look simpler but writing our own script is easier to debug, maintain and scale over long run. The tasks we perform are going to be watch filesystem for changes and perform an action when there is a change. &lt;/p&gt;
+&lt;h3 id=&quot;start&quot;&gt;Start&lt;/h3&gt;
+&lt;p&gt;Lets start the project from scratch. We can use existing project as well. The structure is going to be like : &lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;└── test
+    ├── build
+    │   ├── index.html
+    │   ├── site.css
+    │   └── site.js
+    ├── node_modules
+    ├── package.json
+    ├── src
+    │   ├── css
+    │   ├── index.html
+    │   └── js
+    └── temp
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;src&lt;/code&gt; is where the source code is going to saved. &lt;code&gt;build&lt;/code&gt; is for final build where all the javascript is loaded to single javascript file and all the css( sass comipled) in a single css.  We will be having all our javascript in ES6 ( can be typescript or coffeescript or other format too )  .
+&lt;code&gt;temp&lt;/code&gt; folder is where we store the compiled files ( js or css). &lt;/p&gt;
+&lt;p&gt;The steps are as follows :&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-shell&quot;&gt;$ mkdir test 
+$ cd test
+$ npm init
+$ mkdir src build temp src/js src/css
+# touch src/index.html
+#
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;When we run &lt;code&gt;npm init&lt;/code&gt; the &lt;code&gt;package.json&lt;/code&gt; file gets created after asking few basic questions. 
+With this we have the basic file system ready.&lt;/p&gt;
+&lt;h3 id=&quot;watch&quot;&gt;Watch&lt;/h3&gt;
+&lt;p&gt;To watch the file system for changes we use the package called &lt;a href=&quot;https://github.com/paulmillr/chokidar&quot;&gt;Chokidar&lt;/a&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-shell&quot;&gt;$ npm install --save chokidar
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This adds a dependency in &lt;code&gt;package.json&lt;/code&gt; along with installing it into &lt;code&gt;node_modules&lt;/code&gt;. 
+Create a build script to run our app. Lets call it &lt;code&gt;index.js&lt;/code&gt; . &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-shell&quot;&gt;$touch index.js
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We can start using chokidar to watch files. &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// index.js&lt;/span&gt;
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; chokidar = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'chokidar'&lt;/span&gt;);
+
+chokidar.watch(&lt;span class=&quot;string&quot;&gt;'./src/js/**/*.js'&lt;/span&gt;)
+  .on(&lt;span class=&quot;string&quot;&gt;'add'&lt;/span&gt;,(path) =&amp;gt; {
+    &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'file added to watch '&lt;/span&gt;+path);
+    })
+  .on(&lt;span class=&quot;string&quot;&gt;'change'&lt;/span&gt;, (path)=&amp;gt; {
+    &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'file changed '&lt;/span&gt;+path);
+  });
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;With this tiny code we have established a watcher on our file system. &lt;code&gt;**/*.js&lt;/code&gt; matches all the files which end with .js in the particular file system ( /src/js in our case) . As we will not be using any other function of chokidar we can simplify the require statement a little : &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-javascript&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; watch = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'chokidar'&lt;/span&gt;).watch;
+
+watch(&lt;span class=&quot;string&quot;&gt;'./src/js/**/*.js'&lt;/span&gt;)
+  .on(&lt;span class=&quot;string&quot;&gt;'add'&lt;/span&gt;,(path) =&amp;gt; {
+  ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;read-write-to-files&quot;&gt;Read Write to files&lt;/h3&gt;
+&lt;p&gt;We can use default node apps to read and write to file system. But I found &lt;a href=&quot;https://github.com/shelljs/shelljs&quot;&gt;shelljs&lt;/a&gt; much easier to work with. With shelljs, the code is going to look exactly like shell but with functions instead of commands. Shelljs gives almost all important shell commands like cat, mkdir, echo etc ., 
+Two ways to use shelljs , if we import shelljs/global we can directly access all the shell command ( cat(file)) otherwise we need to call it with a variable (shell.cat(file)). I liked the global format so will go with it. &lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ npm install shelljs --save
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;update the index.js&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//index.js&lt;/span&gt;
+&lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'shelljs/global'&lt;/span&gt;)
+echo(&lt;span class=&quot;string&quot;&gt;'echo test'&lt;/span&gt;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This should print the text to console . This is just to test if its working fine. &lt;/p&gt;
+&lt;h3 id=&quot;transpiler-for-es6&quot;&gt;Transpiler for ES6&lt;/h3&gt;
+&lt;p&gt;Assuming we will be writing our web app in ES6, we need to transpile the code to ES5. Lets use &lt;a href=&quot;http://vamshi-krishna.com/angular/articles/node-build/babeljs.io&quot;&gt;babeljs&lt;/a&gt; for this task. &lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ npm install --save babel babel-preset-es2015
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Lets convert some javascript from ES2015 to javscript 5&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//index.js&lt;/span&gt;
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; babel = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'babel-core'&lt;/span&gt;);
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; presets = {
+  presets: [ &lt;span class=&quot;string&quot;&gt;'es2015'&lt;/span&gt;]
+};
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;transpileToEs5&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;code&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; babel.transform(code, presets);
+}
+echo(transpileToEs5(&lt;span class=&quot;string&quot;&gt;`let a = 5;`&lt;/span&gt;));
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This should output &lt;code&gt;var a = 5;&lt;/code&gt; to the output. &lt;/p&gt;
+&lt;h3 id=&quot;final-code&quot;&gt;Final code&lt;/h3&gt;
+&lt;p&gt;Lets combine all these to final code. &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//index.js&lt;/span&gt;
+
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; watch = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'chokidar'&lt;/span&gt;).watch;
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; babel = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'babel-core'&lt;/span&gt;);
+&lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'shelljs/global'&lt;/span&gt;);
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; presets = {
+  presets: [ &lt;span class=&quot;string&quot;&gt;'es2015'&lt;/span&gt;]
+};
+
+watch(&lt;span class=&quot;string&quot;&gt;'./src/js/**/*.js'&lt;/span&gt;)
+  .on(&lt;span class=&quot;string&quot;&gt;'add'&lt;/span&gt;, (path) =&amp;gt; {
+    &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'file added to watch '&lt;/span&gt;+path);
+    &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; code = cat(path);
+    &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; es5Code = transpileToEs5(code);
+    &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; destinyFile = &lt;span class=&quot;string&quot;&gt;'./temp'&lt;/span&gt;+path;
+    mkdir(&lt;span class=&quot;string&quot;&gt;'-p'&lt;/span&gt;, destinyFile);
+    es5Code.to(destinyFile);
+  })
+  .on(&lt;span class=&quot;string&quot;&gt;'change'&lt;/span&gt;, (path)=&amp;gt; {
+    &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log(&lt;span class=&quot;string&quot;&gt;'file changed '&lt;/span&gt;+path);
+    &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; code = cat(path);
+    &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; es5Code = transpileToEs5(code);
+    &lt;span class=&quot;keyword&quot;&gt;let&lt;/span&gt; destinyFile = &lt;span class=&quot;string&quot;&gt;'./temp'&lt;/span&gt;+path;
+    es5Code.to(destinyFile);
+  });
+
+&lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;.to(&lt;span class=&quot;string&quot;&gt;'./build/site.js'&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;//empty the file everytime the build is run&lt;/span&gt;
+
+watch(&lt;span class=&quot;string&quot;&gt;'./temp/**/*.js'&lt;/span&gt;)
+  .on(&lt;span class=&quot;string&quot;&gt;'add'&lt;/span&gt;, (path) =&amp;gt; {
+    cat(path).toEnd(&lt;span class=&quot;string&quot;&gt;'./build/site.js'&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;//append to the end of the file &lt;/span&gt;
+  })
+  .on(&lt;span class=&quot;string&quot;&gt;'change'&lt;/span&gt;, () =&amp;gt; {
+    cat(&lt;span class=&quot;string&quot;&gt;'./temp/**/*.js'&lt;/span&gt;).to(&lt;span class=&quot;string&quot;&gt;'./build/site.js'&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;//override whole file&lt;/span&gt;
+  });
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;transpileToEs5&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;code&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; babel.transform(code, presets);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here we are watching on &lt;code&gt;src&lt;/code&gt; and &lt;code&gt;temp&lt;/code&gt;. Whevever there is a change in src, we compile and copy to temp. Whenever there is change or new file added to temp directory, we copy whole of temp again to site.js. 
+This is very basic code which can be further optimized a lot but left as is to make it easy to understand. 
+We can add more watchers and more logic in each watch. 
+That is it. If we write code in our src , it automatically compiles and updates site.js. &lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>Service centric architecture in AngularJS</title>
       <link>http://vamshi-krishna.com/angular/angular/articles/services/</link>
