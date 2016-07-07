@@ -156,3 +156,11 @@ Here we are watching on `src` and `temp`. Whevever there is a change in src, we 
 This is very basic code which can be further optimized a lot but left as is to make it easy to understand. 
 We can add more watchers and more logic in each watch. 
 That is it. If we write code in our src , it automatically compiles and updates site.js. 
+
+### Conclusion
+As we can see its very easy to write our own build code. It is very extensible, when we need to add more features , we just add new dependency and add another function in our code. Here are the advantages of using this instead of grunt or gulp: 
+* Add or remove features easily
+* Add customized features easily as its plain javascript code
+* If we are dealing with micro services or multiple projects, We can add a config file and decide which ones to enable and disable for each project. All the projects can use the same script and its easy to impose rules or overwrite rules
+* Convert this to a module and share across teams
+
