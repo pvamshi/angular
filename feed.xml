@@ -142,6 +142,14 @@ watch(&lt;span class=&quot;string&quot;&gt;'./temp/**/*.js'&lt;/span&gt;)
 This is very basic code which can be further optimized a lot but left as is to make it easy to understand. 
 We can add more watchers and more logic in each watch. 
 That is it. If we write code in our src , it automatically compiles and updates site.js. &lt;/p&gt;
+&lt;h3 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h3&gt;
+&lt;p&gt;As we can see its very easy to write our own build code. It is very extensible, when we need to add more features , we just add new dependency and add another function in our code. Here are the advantages of using this instead of grunt or gulp: &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Add or remove features easily&lt;/li&gt;
+&lt;li&gt;Add customized features easily as its plain javascript code&lt;/li&gt;
+&lt;li&gt;If we are dealing with micro services or multiple projects, We can add a config file and decide which ones to enable and disable for each project. All the projects can use the same script and its easy to impose rules or overwrite rules&lt;/li&gt;
+&lt;li&gt;Convert this to a module and share across teams&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     <item>
