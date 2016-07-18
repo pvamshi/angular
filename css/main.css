@@ -11,6 +11,9 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+td {
+  border: 1px dashed gray !important;
+}
 .content-wrap {
   width: 42em;
   margin: 0 auto;
