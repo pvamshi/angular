@@ -5,9 +5,352 @@
     <atom:link href="http://vamshi-krishna.com/angular/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <link>http://vamshi-krishna.com/angular</link>
     <description>Blogs on web development using AngularJS</description>
-    <pubDate>Wed, 06 Jul 2016 05:32:00 -0700</pubDate>
+    <pubDate>Mon, 11 Jul 2016 21:32:00 -0700</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
+    <item>
+      <title>How to improve UI code quality in micro services architecture</title>
+      <link>http://vamshi-krishna.com/angular/angular/articles/ui-code-quality/</link>
+      <pubDate>Mon, 11 Jul 2016 21:32:00 -0700</pubDate>
+      <guid isPermaLink="true">http://vamshi-krishna.com/angular/angular/articles/ui-code-quality/</guid>
+      <author></author>
+      <description>&lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
+&lt;p&gt;The UI code consists of client side code ( Javascript , HTML, CSS). This document talks about the problems faced in UI code quality management and few suggestions on how to fix them. Being micro service archtecture adds more complexity to the issue. We need to figure out work arounds to handle these problems.&lt;/p&gt;
+&lt;p&gt;The document is going to be in Question &amp;amp; Answer mode , where the question describes the problem being faced and the answer the solution. Sometimes the solution might create more problems, so the subsequent question might be based on the solution given to previous question. &lt;/p&gt;
+&lt;p&gt;The context of the project is going to be UI code with following frameworks and libraries: &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Angular 1+&lt;/li&gt;
+&lt;li&gt;grunt&lt;/li&gt;
+&lt;li&gt;jade &lt;/li&gt;
+&lt;li&gt;Coffeescript, javascript, ES2015 co-existing&lt;/li&gt;
+&lt;li&gt;jquery in legacy code &lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;why-ui-code-quality-is-important&quot;&gt;Why UI Code quality is important&lt;/h3&gt;
+&lt;p&gt;The share of UI code in web applications has increased considerably over the past couple of years. The importance of standardizing and improving the UI Code increased accordingly. 
+Few years back there was no concern related to UI code quality, but these days it has become an important concern due to the following reasons : &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Share of UI code drastically increased over the couple of years. The logic once resided in backend is now moved to frontend.&lt;/li&gt;
+&lt;li&gt;Forgiving nature of Javascript and HTML. There are no strict rules or compiling errors which makes very difficult to find errors&lt;/li&gt;
+&lt;li&gt;Uncontrolled evolution of UI code. The language and framework are upgraded pretty fast in recent years. The code need to be well organized and well tested to be able to upgrade to newer technology.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;challenges-faced-in-microservices-and-ui-code-in-general-&quot;&gt;Challenges faced in microservices ( and UI code in general )&lt;/h3&gt;
+&lt;p&gt;Microservices add more challenges to already existing challenges in UI code.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Legacy code &lt;ul&gt;
+&lt;li&gt;Different projects using different frameworks&lt;/li&gt;
+&lt;li&gt;Older code with different framework like jQuery &lt;/li&gt;
+&lt;li&gt;Different format of javascript like coffeescript&lt;/li&gt;
+&lt;li&gt;Code without test coverage&lt;/li&gt;
+&lt;li&gt;Different practices were used in early stage of Angular &lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Different styles &lt;ul&gt;
+&lt;li&gt;Javascript code can be written using functional style or object oriented or procedural &lt;/li&gt;
+&lt;li&gt;Indentation preferences&lt;/li&gt;
+&lt;li&gt;Component based vs Controller based ( Angular )&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Reluctance to comply &lt;ul&gt;
+&lt;li&gt;Deciding a style is impossible. Even if it is decided getting everyone comply to the rules is another challenge&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Task deadlines &lt;ul&gt;
+&lt;li&gt;Its easy to skip best practices to reach deadlines as javascript is very forgiving &lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;eslint-code-quality-assurance&quot;&gt;Eslint : Code quality assurance&lt;/h3&gt;
+&lt;p&gt;Eslint gives a set of rules which can be configured. We can configure the build to fail when these rules are broken. Rules can be configured. Custom rules can be added. Rules can be configured using a configuration file .eslintrc.
+Eslint helps in &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Prevent trivial mistakes like code after return statement etc &lt;/li&gt;
+&lt;li&gt;Maintain consistency in code ( single quotes, characters limit, forcing ES2015 etc ) &lt;/li&gt;
+&lt;li&gt;Avoid antipatterns. When a bad coding practice is observed , we can write a custom rule to prevent that being written again in future&lt;/li&gt;
+&lt;li&gt;We have framework specific rules which can be applied to enforce good practices&lt;/li&gt;
+&lt;li&gt;Almost all editors have eslint plugins which gives instant feedback while developing &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;what-is-the-problem-&quot;&gt;What is the problem ?&lt;/h2&gt;
+&lt;p&gt;We have different configuration file for each project. This causes the following problems : &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Each project will have its own rules configuration, no consistency&lt;/li&gt;
+&lt;li&gt;Adding a new rule need to be added in each project. In our case where there are two digit number of projects, its a big hastle &lt;/li&gt;
+&lt;li&gt;Few old projects use jshint , which need to be replaced with eslint &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;solution-&quot;&gt;Solution ?&lt;/h2&gt;
+&lt;p&gt;We can have a single file shared by all projects. We have a single project which defines the rules and all other projects import from this configuration. The way to do this is by having a project hosted publicly. &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//index.js in base-eslint-config project&lt;/span&gt;
+&lt;span class=&quot;built_in&quot;&gt;module&lt;/span&gt;.exports = {
+  &lt;span class=&quot;string&quot;&gt;'env'&lt;/span&gt;: {
+    &lt;span class=&quot;string&quot;&gt;'browser'&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
+    &lt;span class=&quot;string&quot;&gt;'jasmine'&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
+    &lt;span class=&quot;string&quot;&gt;'node'&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;,
+    &lt;span class=&quot;string&quot;&gt;'amd'&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;,
+    &lt;span class=&quot;string&quot;&gt;'mocha'&lt;/span&gt;: &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;
+  },
+  &lt;span class=&quot;string&quot;&gt;'ecmaFeatures'&lt;/span&gt;: {},
+   &lt;span class=&quot;string&quot;&gt;'globals'&lt;/span&gt;: {
+    &lt;span class=&quot;string&quot;&gt;'angular'&lt;/span&gt; : &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
+    &lt;span class=&quot;string&quot;&gt;'moment'&lt;/span&gt; : &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
+     &lt;span class=&quot;comment&quot;&gt;//for tests&lt;/span&gt;
+    &lt;span class=&quot;string&quot;&gt;'inject'&lt;/span&gt; : &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;,
+    &lt;span class=&quot;string&quot;&gt;'module'&lt;/span&gt; : &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;
+  },
+  &lt;span class=&quot;string&quot;&gt;'rules'&lt;/span&gt;: {}
+  };
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This configuration can be installed into each project by &lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;npm install --save https://path-to-repository
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This installs the configuration into our project. We can then use all the configurations mentioned there just by extending it. &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//.eslintrc&lt;/span&gt;
+{
+&lt;span class=&quot;string&quot;&gt;&quot;extends&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;base-eslint-config&quot;&lt;/span&gt;,
+  &lt;span class=&quot;string&quot;&gt;&quot;plugins&quot;&lt;/span&gt;: [&lt;span class=&quot;string&quot;&gt;&quot;angular&quot;&lt;/span&gt;],
+  &lt;span class=&quot;string&quot;&gt;&quot;rules&quot;&lt;/span&gt;: {
+    &lt;span class=&quot;string&quot;&gt;&quot;no-var&quot;&lt;/span&gt;: &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;,
+    &lt;span class=&quot;string&quot;&gt;&quot;angular/di-unused&quot;&lt;/span&gt;: &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;,
+    &lt;span class=&quot;string&quot;&gt;&quot;angular/no-http-callback&quot;&lt;/span&gt;: &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We can write additional rules to either override the base project rules or add new rules&lt;/li&gt;
+&lt;li&gt;When we start using eslint, legacy code is not yet compliant. We can add rules to disable warning and keep enabling them one by one as and when we refactor the code to fix the eslint errors&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;build-sharing-build-scripts&quot;&gt;Build : Sharing build scripts&lt;/h3&gt;
+&lt;p&gt;We use build scripts while developing UI code . Mostly the tasks are: &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Check for eslint errors &lt;/li&gt;
+&lt;li&gt;Transpile ES2015,coffeescript,typescript etc to plain javascript &lt;/li&gt;
+&lt;li&gt;Run unit tests &lt;/li&gt;
+&lt;li&gt;Convert jade to html &lt;/li&gt;
+&lt;li&gt;Convert sass/scss to css &lt;/li&gt;
+&lt;li&gt;Combile code in multiple files to single file&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;At present we use Grunt to manage the build tasks. Grunt tasks are maintained using Gruntfile.js .&lt;/p&gt;
+&lt;h2 id=&quot;problem-&quot;&gt;Problem ?&lt;/h2&gt;
+&lt;p&gt;Each project has its own Gruntfile. Which is very problematic for the following reason : &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Very difficult to add support for new tool ( like eslint, babel, code coverage etc., ). We need to go to each project and edit the script manually . &lt;/li&gt;
+&lt;li&gt;Inconsistent practices. Some projects have optimized scripts while older projects have slow or unfunctional scripts. Difficult to hold the project task and fix the issue. &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;solution-&quot;&gt;Solution :&lt;/h2&gt;
+&lt;p&gt;Again, use a single grunt config and share it across. The way to do is using node app &lt;a href=&quot;https://github.com/AdesisNetlife/croak&quot;&gt;Croak&lt;/a&gt;. With croak, we can have single project with all the grunt configs enabled. Each project will have a croak config instead of Grunt and we can override the rules declared in gruntfile. &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// example from croak documentation . &lt;/span&gt;
+&lt;span class=&quot;built_in&quot;&gt;module&lt;/span&gt;.exports = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; (&lt;span class=&quot;params&quot;&gt;croak&lt;/span&gt;) &lt;/span&gt;{
+
+  croak.extendConfig({
+    log: {
+      foo: {},
+      bar: &lt;span class=&quot;string&quot;&gt;'hello croak'&lt;/span&gt;
+    },
+    read: {
+      files: [
+        &lt;span class=&quot;string&quot;&gt;'&amp;lt;%= croak.root %&amp;gt;/file.json'&lt;/span&gt;
+        __dirname + &lt;span class=&quot;string&quot;&gt;'/another-file.json'&lt;/span&gt;
+      ]
+    }
+  })
+
+  &lt;span class=&quot;comment&quot;&gt;// you can also register new tasks if 'register_tasks' option is enabled &lt;/span&gt;
+  croak.registerMultiTask(&lt;span class=&quot;string&quot;&gt;'log'&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'Log stuff.'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+    grunt.log.writeln(&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.target + &lt;span class=&quot;string&quot;&gt;': '&lt;/span&gt; + &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.data)
+  })
+
+  croak.registerTask(&lt;span class=&quot;string&quot;&gt;'default'&lt;/span&gt;, [&lt;span class=&quot;string&quot;&gt;'log'&lt;/span&gt;])
+
+  }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;using-node-instead-of-grunt-gulp-&quot;&gt;Using node (instead of Grunt/Gulp)&lt;/h2&gt;
+&lt;p&gt;We can write our own script custom build for our requirements. These are few node apps which can be used : &lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Purpose&lt;/th&gt;
+&lt;th style=&quot;text-align:left&quot;&gt;Node app&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Watching file changes&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;chokidar&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Transpile ES2015&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;babel&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Transpile coffeescript&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;coffee-script&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;jade/pug&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;jade&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;file read/write&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;shelljs&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;minify&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;uglify-js&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;A simple build script looks like this : &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//build.js&lt;/span&gt;
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; watch = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'chokidar'&lt;/span&gt;).watch;
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; babel = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'babel-core'&lt;/span&gt;);
+&lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'shelljs/global'&lt;/span&gt;);
+&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; presets = {
+  presets: [ &lt;span class=&quot;string&quot;&gt;'es2015'&lt;/span&gt;]
+};
+
+watch(&lt;span class=&quot;string&quot;&gt;'./src/js/**/*.js'&lt;/span&gt;)
+  .on(&lt;span class=&quot;string&quot;&gt;'add'&lt;/span&gt;, (path) =&amp;gt; {
+    mkdir(&lt;span class=&quot;string&quot;&gt;'-p'&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'./temp'&lt;/span&gt;+path);
+    transpileToEs5(cat(path)).to(destinyFile);
+  })
+  .on(&lt;span class=&quot;string&quot;&gt;'change'&lt;/span&gt;, (path)=&amp;gt; {
+    mkdir(&lt;span class=&quot;string&quot;&gt;'-p'&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'./temp'&lt;/span&gt;+path);
+    transpileToEs5(cat(path)).to(destinyFile);
+  });
+
+&lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;.to(&lt;span class=&quot;string&quot;&gt;'./build/site.js'&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;//empty the file everytime the build is run&lt;/span&gt;
+
+watch(&lt;span class=&quot;string&quot;&gt;'./temp/**/*.js'&lt;/span&gt;)
+  .on(&lt;span class=&quot;string&quot;&gt;'add'&lt;/span&gt;, (path) =&amp;gt; {
+    cat(path).toEnd(&lt;span class=&quot;string&quot;&gt;'./build/site.js'&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;//append to the end of the file &lt;/span&gt;
+  })
+  .on(&lt;span class=&quot;string&quot;&gt;'change'&lt;/span&gt;, () =&amp;gt; {
+    cat(&lt;span class=&quot;string&quot;&gt;'./temp/**/*.js'&lt;/span&gt;).to(&lt;span class=&quot;string&quot;&gt;'./build/site.js'&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;//override whole file&lt;/span&gt;
+  });
+
+&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;transpileToEs5&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;code&lt;/span&gt;)&lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; babel.transform(code, presets);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This script can be imported to all projects by using exports/imports.Different paths and other variables can be injected through a config file. This way , when we want to add a new feature, we just need to add that to this script and we have the feature available to all projects. &lt;/p&gt;
+&lt;h3 id=&quot;testing-and-code-coverage-&quot;&gt;Testing ( and Code coverage )&lt;/h3&gt;
+&lt;p&gt;Words cannot describe the importance of testing in quality assurance. We have two types of testing : &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Unit testing using Angular and Jasmine&lt;/li&gt;
+&lt;li&gt;e2e testing using Protractor and Jasmine&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;unit-testing&quot;&gt;Unit testing&lt;/h2&gt;
+&lt;p&gt;Unit testing is testing a given function or module by mocking all other interactions. If the module calls another service or module, we mock the response of that module so that we are concerned only about the code we are testing. Unit tests are very light due to mock data and are thus very easy to run. Most of the cases every change in our code is accompanied by running all the related unit tests to make sure no other functionality broke. &lt;/p&gt;
+&lt;p&gt;We use karma for testing jasmine tests. The Gruntfile has related entry : &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;{
+        options: {
+          files: [
+            &lt;span class=&quot;string&quot;&gt;'&amp;lt;%= test_files.vendor %&amp;gt;'&lt;/span&gt;,
+            &lt;span class=&quot;string&quot;&gt;'&amp;lt;%= vendor_files.js %&amp;gt;'&lt;/span&gt;,
+            &lt;span class=&quot;string&quot;&gt;'&amp;lt;%= app_files.js %&amp;gt;'&lt;/span&gt;,
+            &lt;span class=&quot;string&quot;&gt;'&amp;lt;%= test_files.js %&amp;gt;'&lt;/span&gt;
+          ],
+          browsers: [&lt;span class=&quot;string&quot;&gt;'PhantomJS'&lt;/span&gt;],
+          logLevel: &lt;span class=&quot;string&quot;&gt;'DEBUG'&lt;/span&gt;,
+          frameworks: [&lt;span class=&quot;string&quot;&gt;'jasmine'&lt;/span&gt;],
+          preprocessors: {
+            &lt;span class=&quot;string&quot;&gt;'src/**/*.js'&lt;/span&gt;: [&lt;span class=&quot;string&quot;&gt;'babel'&lt;/span&gt;],
+            &lt;span class=&quot;string&quot;&gt;'src/**/!(*.spec|*.mock)*.js'&lt;/span&gt;: [&lt;span class=&quot;string&quot;&gt;'coverage'&lt;/span&gt;]
+          },
+          coverageReporter : {
+            reporters:[
+              {type: &lt;span class=&quot;string&quot;&gt;'html'&lt;/span&gt;, dir:&lt;span class=&quot;string&quot;&gt;'build/coverage/'&lt;/span&gt;, subdir: &lt;span class=&quot;string&quot;&gt;'.'&lt;/span&gt;},
+              {type: &lt;span class=&quot;string&quot;&gt;'text-summary'&lt;/span&gt;}
+            ]
+          },
+        },
+        unit: {
+          runnerPort: &lt;span class=&quot;number&quot;&gt;9101&lt;/span&gt;,
+          port: &lt;span class=&quot;number&quot;&gt;9103&lt;/span&gt;,
+          background: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;
+        },
+        continuous: {
+          singleRun: &lt;span class=&quot;literal&quot;&gt;true&lt;/span&gt;
+        }
+      }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Code coverage : Code coverage is a metrics which shows what percentage of code is handled in unit tests. It even calculates the coverage in conditional branches. &lt;/p&gt;
+&lt;p&gt;The entry &lt;code&gt;coverateReporter&lt;/code&gt; in the above script validates the unit tests and generates html files which give detailed information on total code coverage . It shows code coverage at each line level. We can have build configured in teamcity,travis-ci etc to read these docs and break build if total code coverage percentage is lesser than previous build. &lt;/p&gt;
+&lt;h2 id=&quot;e2e-testing&quot;&gt;e2e testing&lt;/h2&gt;
+&lt;p&gt;e2e ( End to End ) testing is automating real actions . We do not mock any data . Its as if a human opens the url in browser, inputs data and checks the page is behaving as expected. 
+The page does the network call to fetch data and everything is realtime. For this reason, e2e is very expensive operation. We have data and network overhead. Its slow and resource intensive. But as it is not a simulation but real job automated , its very valuable. We check the e2e tests only when we are ready to push the code unlike unit tests which are checked after each change . &lt;/p&gt;
+&lt;p&gt;The general convetion for e2e tests are to have &lt;code&gt;po&lt;/code&gt; objects(files) and spec files.&lt;code&gt;po&lt;/code&gt; files contains objects which have information on different pages of the webapp like url, fields, navigation details etc., &lt;code&gt;spec&lt;/code&gt; files interact with &lt;code&gt;po&lt;/code&gt; files to get info and execute tests. &lt;/p&gt;
+&lt;p&gt;Example: &lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//login-ui po &lt;/span&gt;
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; LoginPage = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; userName = element(by.id(&lt;span class=&quot;string&quot;&gt;'userName'&lt;/span&gt;));
+  &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; passWord = element(by.id(&lt;span class=&quot;string&quot;&gt;'password'&lt;/span&gt;));
+  &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; signInBtn = element(by.id(&lt;span class=&quot;string&quot;&gt;'sign-in'&lt;/span&gt;));
+
+  &lt;span class=&quot;comment&quot;&gt;// url of Kareo&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getURL = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+    browser.get(&lt;span class=&quot;string&quot;&gt;'...'&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;//fill in url &lt;/span&gt;
+  };
+
+  &lt;span class=&quot;comment&quot;&gt;// set username&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.setUserName = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;username&lt;/span&gt;) &lt;/span&gt;{
+    userName.sendKeys(username);
+  };
+
+  &lt;span class=&quot;comment&quot;&gt;// set password&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.setPassWord = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;password&lt;/span&gt;) &lt;/span&gt;{
+    passWord.sendKeys(password);
+  };
+
+  &lt;span class=&quot;comment&quot;&gt;// click sign in button&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.clickSignIn = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+      signInBtn.click();
+  };
+
+  &lt;span class=&quot;comment&quot;&gt;// get title of the browser&lt;/span&gt;
+  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.browserTitle = &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+      &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; browser.getTitle();
+  };
+
+};
+
+&lt;span class=&quot;built_in&quot;&gt;module&lt;/span&gt;.exports = LoginPage;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-js&quot;&gt;&lt;span class=&quot;comment&quot;&gt;//spec.js&lt;/span&gt;
+
+&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; LoginPage = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'../po/login-page.po'&lt;/span&gt;);
+describe(&lt;span class=&quot;string&quot;&gt;'login page'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+  it(&lt;span class=&quot;string&quot;&gt;'Login to Kareo'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt;(&lt;span class=&quot;params&quot;&gt;&lt;/span&gt;) &lt;/span&gt;{
+    &lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; loginPage = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; LoginPage();
+    loginPage.getURL();
+        expect(loginPage.browserTitle()).toEqual(&lt;span class=&quot;string&quot;&gt;'Login | Kareo'&lt;/span&gt;);
+
+    loginPage.setUserName(&lt;span class=&quot;string&quot;&gt;'..'&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;//fill in user id &lt;/span&gt;
+    loginPage.setPassWord(&lt;span class=&quot;string&quot;&gt;'...'&lt;/span&gt;); &lt;span class=&quot;comment&quot;&gt;//fill in password&lt;/span&gt;
+    loginPage.clickSignIn();
+        &lt;span class=&quot;comment&quot;&gt;// verify search Text box after login &lt;/span&gt;
+  });
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;problem-&quot;&gt;Problem :&lt;/h2&gt;
+&lt;p&gt;Every project need to use login PO to login into the app before navigating to their project. Similarly there are many other PO objects which need to be shared across the projects. 
+As all projects are private repositories , we can not share the code as we did earlier. &lt;/p&gt;
+&lt;h2 id=&quot;solution-&quot;&gt;Solution :&lt;/h2&gt;
+&lt;p&gt;The probable solution for this is to have PO objects added to a subrepo. We are using hg (mercurial) so the code snippet will be for mercurial. 
+Create a new repository for login-po , lets assume it is &lt;a href=&quot;https://bitbucket.org/org/login-ui-po&quot;&gt;https://bitbucket.org/org/login-ui-po&lt;/a&gt; 
+We perform the following in our login-ui project. &lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ cd login-ui 
+$ echo &amp;#39;test/po = https://bitbucket.org/org/login-ui-po&amp;#39; &amp;gt; .hgsub
+$ hg add .hgsub
+$ hg commit -m &amp;quot;Adding subrepo&amp;quot; 
+$ cd test
+$ hg clone https://bitbucket.org/org/login-ui-po po
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;We are adding a subrepo to our login-ui by adding the info in the file &lt;code&gt;.hgsub&lt;/code&gt;. We need to provide info in the form of &lt;/p&gt;
+&lt;p&gt;&amp;lt;destination folder&amp;gt; = &amp;lt;repository url&amp;gt;&lt;/p&gt;
+&lt;p&gt;Then we clone the repository in the correct path. Now we can clone login-ui-po into all projects which need login-ui &lt;code&gt;po&lt;/code&gt; objects. Adding code to &lt;code&gt;login-ui-po&lt;/code&gt; will be reflected in all projects which are using it . When we perform pull for our project, the subrepo will also get updated . This way we are linking po objects in multiple projects when and where they are needed without changing any other build process or structure. &lt;/p&gt;
+</description>
+    </item>
     <item>
       <title>Project building using node</title>
       <link>http://vamshi-krishna.com/angular/angular/articles/node-build/</link>

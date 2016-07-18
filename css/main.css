@@ -11,8 +11,12 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-td {
-  border: 1px dashed gray !important;
+td,th {
+  border: 2px solid ;
+  padding:0.5em;
+}
+table{
+  border-collapse:collapse;
 }
 .content-wrap {
   width: 42em;
@@ -383,11 +387,13 @@ code.lang-markdown .bullet {
 /* media queries */
 
 @media (min-width: 1600px) {
-  body { font-size: 26px; }
+  /* body { font-size: 26px; } */
+  body { font-size: 20px; }
 }
 
 @media (max-width: 900px) {
-  body { font-size: 18px; }
+  body { font-size: 14px; }
+  /* body { font-size: 18px; } */
 }
 
 @media (max-width: 690px) {
